@@ -88,21 +88,18 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/main.js"></script>
     <script>
-        // Dados iniciais de fallback (usados se Firestore ainda n&#227;o tiver projetos)
         const fallbackProjetos = [
             {
-                nome: 'Tasca Moderna',
                 tipo: 'Restaurante Local',
-                desafio: 'Dependia do passa-a-palavra e n&#227;o aparecia online.',
-                resultado: '+40% de reservas no primeiro m&#234;s. Site com menu digital integrado.',
+                desafio: 'Dependia do passa-a-palavra e não aparecia online.',
+                resultado: '+40% de reservas no primeiro mês. Site com menu digital integrado.',
                 imagemUrl: 'images/restaurant_entrance_1784624044258.jpg',
                 ordem: 1
             },
             {
-                nome: 'Lumina Est&#233;tica',
-                tipo: 'Cl&#237;nica de Est&#233;tica',
-                desafio: 'Site desatualizado e sem otimiza&#231;&#227;o para telem&#243;vel.',
-                resultado: 'Top 3 no Google local. Sistema de marca&#231;&#245;es gerou +50 agendamentos.',
+                tipo: 'Clínica de Estética',
+                desafio: 'Site desatualizado e sem otimização para telemóvel.',
+                resultado: 'Top 3 no Google local. Sistema de marcações gerou +50 agendamentos.',
                 imagemUrl: 'images/clinic_entrance_1784624057869.jpg',
                 ordem: 2
             }
@@ -118,9 +115,10 @@
                 <div class="card-interactive reveal active" style="padding: 0; overflow: hidden;">
                     <div style="height: 220px; background: url('${p.imagemUrl || p.imagem || ''}') center/cover;"></div>
                     <div style="padding: var(--spacing-md);">
-                        <div style="color: var(--color-primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 5px; text-transform: uppercase;">${p.tipo}</div>
-                        <h3 style="margin-bottom: 10px;">O Desafio</h3>
-                        <p style="font-size: 0.95rem;">${p.desafio}</p>
+                        <div style="color: var(--primary); font-weight: 600; font-size: 0.875rem; margin-bottom: 8px; text-transform: uppercase;">${p.tipo}</div>
+                        ${p.nome ? `<h3 style="margin-bottom: 12px; font-size: 1.25rem;">${p.nome}</h3>` : ''}
+                        <h4 style="margin-bottom: 8px; font-size: 1rem;">O Desafio</h4>
+                        <p style="font-size: 0.95rem; margin-bottom: 15px;">${p.desafio}</p>
                         <h3 style="margin-bottom: 10px; font-size: 1.1rem; color: var(--color-accent);">O Resultado</h3>
                         <p style="font-size: 0.95rem; margin-bottom: 0;">${p.resultado}</p>
                     </div>
