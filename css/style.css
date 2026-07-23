@@ -479,6 +479,7 @@ label {
 .footer a:hover { color: var(--color-accent); padding-left: 5px; }
 .footer li { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; transition: var(--transition-fast); }
 
+
 /* SPA Page Transitions */
 .page-transition {
     opacity: 1;
@@ -490,6 +491,35 @@ label {
     opacity: 0;
     transform: translateY(-10px);
 }
+
+/* From faq.html */
+
+        .faq-item {
+            background: white;
+            border: 1px solid #E2E8F0;
+            border-radius: var(--border-radius-md);
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+        .faq-question {
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--color-text-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .faq-answer {
+            padding: 0 20px 20px;
+            color: var(--color-text-sec);
+            display: none;
+        }
+    
+
+/* From sites.html */
+
         .plan-card {
             background: white;
             padding: var(--spacing-md);
@@ -548,26 +578,7 @@ label {
         }
     
 
-        .faq-item {
-            background: white;
-            border: 1px solid #E2E8F0;
-            border-radius: var(--border-radius-md);
-            margin-bottom: 15px;
-            overflow: hidden;
-        }
-        .faq-question {
-            padding: 20px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--color-text-main);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-        }
-        .faq-answer {
-            padding: 0 20px 20px;
-            color: var(--color-text-sec);
-            display: none;
-        }
+/* From sites.html */
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     
