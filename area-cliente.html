@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área de Cliente | RM Conecta</title>
+    <meta name="description" content="Aceda à sua área reservada de cliente RM Conecta. Guias práticos, recursos exclusivos e gestão do seu perfil.">
+    <meta property="og:title" content="Área de Cliente | RM Conecta">
+    <meta property="og:description" content="Aceda à sua área reservada de cliente RM Conecta. Guias práticos, recursos exclusivos e gestão do seu perfil.">
+    <meta property="og:url" content="https://rmconecta.netlify.app/area-cliente">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://rmconecta.netlify.app/images/hero_business_owner_1784624346442.jpg">
+    <meta property="og:locale" content="pt_PT">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Área de Cliente | RM Conecta">
+    <meta name="twitter:description" content="Aceda à sua área reservada de cliente RM Conecta. Guias práticos, recursos exclusivos e gestão do seu perfil.">
+    <meta name="twitter:image" content="https://rmconecta.netlify.app/images/hero_business_owner_1784624346442.jpg">
+    <link rel="canonical" href="https://rmconecta.netlify.app/area-cliente">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <header class="header">
+        <div class="container navbar">
+            <a href="index.html" class="logo">RM <span>Conecta</span></a>
+            <nav class="nav-links">
+                <a href="index.html">Início</a>
+                <a href="sites.html">Criação de Sites</a>
+                <a href="area-cliente.html" class="active">Área de Cliente <i data-lucide="lock" style="width: 14px; height: 14px; display: inline-block;"></i></a>
+            </nav>
+            <div class="nav-cta">
+                <div style="width: 130px; height: 42px; border-radius: 50px; background: #e2e8f0; animation: skeleton-pulse 1.5s infinite ease-in-out;"></div>
+            </div>
+        </div>
+    </header>
+
+    <section class="section-bg-sec text-center" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl);">
+        <div class="container" style="max-width: 800px;">
+            <i data-lucide="lock" style="width: 64px; height: 64px; color: var(--color-primary); margin-bottom: 20px;"></i>
+            <h1>Guias e Recursos Reservados</h1>
+            <p style="font-size: 1.25rem;">Área exclusiva para clientes RM Conecta. Aceda aos nossos guias práticos e estratégias de crescimento.</p>
+        </div>
+    </section>
+
+    <section>
+        <div class="container">
+            <div style="max-width: 500px; margin: 0 auto; background: white; padding: var(--spacing-md); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); border: 1px solid #E2E8F0;">
+                
+                <!-- Toggle -->
+                <div id="toggle-container" style="display: flex; background: var(--color-bg-sec); border-radius: 50px; padding: 5px; margin-bottom: var(--spacing-md);">
+                    <button id="btn-login" style="flex: 1; padding: 10px; border: none; background: white; border-radius: 50px; font-weight: 600; color: var(--color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;">Iniciar Sessão</button>
+                    <button id="btn-register" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 50px; font-weight: 600; color: var(--color-text-sec); cursor: pointer; transition: all 0.3s ease;">Criar Conta</button>
+                </div>
+
+                <!-- Caixa Global de Erros (mantida como fallback, agora usamos modais) -->
+                <div id="auth-error-msg" style="display: none;"></div>
+
+                <!-- Formulário Iniciar Sessão -->
+                <div id="form-login">
+                    <h2 style="text-align: center; margin-bottom: var(--spacing-sm);">Bem-vindo de volta</h2>
+                    <form id="form-login-submit">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
+                            <input type="email" id="login-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 5px;">Palavra-passe</label>
+                            <input type="password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="keep-logged-login" style="width: auto;">
+                            <label for="keep-logged-login" style="margin: 0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Manter sessão iniciada</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar na Área de Cliente &rarr;</button>
+                    </form>
+                </div>
+
+                <!-- Formulário Criar Conta (Oculto por defeito) -->
+                <div id="form-register" style="display: none;">
+                    <h2 style="text-align: center; margin-bottom: var(--spacing-sm);">Junte-se a Nós</h2>
+                    <form id="form-register-submit">
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 5px;">Nome Completo</label>
+                            <input type="text" id="register-name" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
+                            <input type="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-weight: 500; margin-bottom: 5px;">Palavra-passe</label>
+                            <input type="password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        </div>
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="keep-logged-register" style="width: auto;">
+                            <label for="keep-logged-register" style="margin: 0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Manter sessão iniciada</label>
+                        </div>
+                        <button type="submit" class="btn btn-accent" style="width: 100%;">Criar Conta &rarr;</button>
+                    </form>
+                </div>
+
+                <!-- Visão de Sessão Iniciada (Oculta por defeito) -->
+                <div id="logged-in-view" style="display: none; text-align: center;">
+                    <div style="background: rgba(59, 130, 246, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i data-lucide="user-check" style="width: 40px; height: 40px; color: var(--color-primary);"></i>
+                    </div>
+                    <h2 style="margin-bottom: 10px; text-align: center;">
+                        Olá, <span id="user-name-display">Cliente</span>!
+                    </h2>
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <button id="btn-edit-name" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px; border-radius: 50px;" aria-label="Mudar o nome de perfil">
+                            <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i> Mudar Nome
+                        </button>
+                    </div>
+                    <p id="user-plan-display" style="color: var(--color-text-sec); margin-bottom: 20px;">A sua área reservada está ativa.</p>
+
+                    <!-- Recursos Dinâmicos -->
+                    <div id="recursos-container" style="margin-bottom: 25px;"></div>
+
+                    <button id="btn-logout" class="btn btn-outline" style="width: 100%; margin-bottom: 15px;" aria-label="Terminar sessão">Terminar Sessão</button>
+                    <button id="btn-delete-account" class="btn-danger-solid" style="width: 100%;" aria-label="Encerrar conta definitivamente">
+                        <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i> Encerrar Conta Definitivamente
+                    </button>
+                </div>
+
+                <div id="footer-note" style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--color-text-sec);">
+                    O nível de acesso (Básico, Intermédio ou VIP) depende do seu Plano de Suporte Mensal.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Custom Modal para Alertas Profissionais -->
+    <div id="custom-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease;">
+        <div style="background: white; padding: 30px; border-radius: var(--border-radius-lg); max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);" id="modal-box">
+            <div id="modal-icon-container" style="margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; width: 60px; height: 60px; border-radius: 50%;">
+                <i id="modal-icon" data-lucide="alert-triangle" style="width: 30px; height: 30px;"></i>
+            </div>
+            <h3 id="modal-title" style="margin-bottom: 10px; font-size: 1.5rem;">Atenção</h3>
+            <p id="modal-desc" style="color: var(--color-text-sec); margin-bottom: 25px; line-height: 1.5;"></p>
+            <div id="modal-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2026 RM Conecta. Todos os direitos reservados. Feito com rigor em Portugal.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnLogin = document.getElementById('btn-login');
+            const btnRegister = document.getElementById('btn-register');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+
+            const formLoginSubmit = document.getElementById('form-login-submit');
+            const formRegisterSubmit = document.getElementById('form-register-submit');
+            const loggedInView = document.getElementById('logged-in-view');
+            const toggleContainer = document.getElementById('toggle-container'); // Need to add this ID
+            const footerNote = document.getElementById('footer-note');
+            const btnLogout = document.getElementById('btn-logout');
+            const userNameDisplay = document.getElementById('user-name-display');
+
+            // Funções de UI Customizadas
+            const showError = (msg) => {
+                showModal(
+                    'Ocorreu um Problema',
+                    msg,
+                    'warning',
+                    '<button class="btn btn-primary modal-close" data-action="ok" style="width: 100%;">Entendido</button>'
+                );
+            };
+
+            const showModal = (title, desc, type, buttonsHtml, callback) => {
+                const modal = document.getElementById('custom-modal');
+                const box = document.getElementById('modal-box');
+                const iconContainer = document.getElementById('modal-icon-container');
+                const icon = document.getElementById('modal-icon');
+                
+                document.getElementById('modal-title').innerText = title;
+                document.getElementById('modal-desc').innerText = desc;
+                document.getElementById('modal-actions').innerHTML = buttonsHtml;
+                
+                if (type === 'danger') {
+                    iconContainer.style.background = '#fef2f2';
+                    icon.style.color = '#ef4444';
+                    icon.setAttribute('data-lucide', 'alert-triangle');
+                } else if (type === 'success') {
+                    iconContainer.style.background = '#f0fdf4';
+                    icon.style.color = '#22c55e';
+                    icon.setAttribute('data-lucide', 'check-circle');
+                } else if (type === 'info') {
+                    iconContainer.style.background = '#eff6ff';
+                    icon.style.color = 'var(--color-primary)';
+                    icon.setAttribute('data-lucide', 'edit-3');
+                } else if (type === 'warning') {
+                    iconContainer.style.background = '#fffbeb';
+                    icon.style.color = '#d97706';
+                    icon.setAttribute('data-lucide', 'alert-circle');
+                }
+                
+                lucide.createIcons();
+                modal.style.display = 'flex';
+                // Trigger animation
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    box.style.transform = 'scale(1)';
+                }, 10);
+
+                // Bind close buttons
+                const closeBtns = modal.querySelectorAll('.modal-close');
+                closeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        modal.style.opacity = '0';
+                        box.style.transform = 'scale(0.9)';
+                        setTimeout(() => { modal.style.display = 'none'; if(callback) callback(btn.dataset.action); }, 300);
+                    });
+                });
+            };
+
+            // --- Firebase Auth (Real Backend) ---
+            const handleLogin = (email, password, keepLogged) => {
+                const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+                auth.setPersistence(persistence).then(() => {
+                    return auth.signInWithEmailAndPassword(email, password);
+                }).catch(err => {
+                    if (err.message.includes('invalid-credential') || err.message.includes('wrong-password') || err.message.includes('user-not-found')) {
+                        showError('Os dados de acesso estão incorretos. Verifique o email e a palavra-passe e tente novamente.');
+                    } else if (err.message.includes('too-many-requests')) {
+                        showError('Demasiadas tentativas falhadas. Aguarde uns minutos antes de tentar novamente.');
+                    } else {
+                        showError('Não foi possível iniciar sessão. Tente novamente mais tarde.');
+                    }
+                });
+            };
+
+            const handleRegister = (email, password, name, keepLogged) => {
+                const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
+                auth.setPersistence(persistence).then(() => {
+                    return auth.createUserWithEmailAndPassword(email, password);
+                }).then((userCredential) => {
+                    if(userCredential && userCredential.user) {
+                        // Criar documento do utilizador no Firestore
+                        db.collection('users').doc(userCredential.user.uid).set({
+                            nome: name,
+                            email: email,
+                            plano: 'Sem Plano',
+                            dataRegisto: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        return userCredential.user.updateProfile({ displayName: name });
+                    }
+                }).then(() => {
+                    window.location.reload();
+                }).catch(err => {
+                    if (err.message.includes('email-already-in-use')) {
+                        showModal(
+                            'Email Já Registado',
+                            'Este endereço de email já tem uma conta associada. Inicie sessão com os seus dados ou utilize outro email para criar uma nova conta.',
+                            'warning',
+                            `<div style="display:flex;gap:10px;width:100%;">
+                                <button class="btn btn-outline modal-close" data-action="cancel" style="flex:1;">Fechar</button>
+                                <button class="btn btn-primary modal-close" data-action="login" style="flex:1;">Ir para Login</button>
+                            </div>`,
+                            (action) => {
+                                if (action === 'login') {
+                                    btnLogin.click();
+                                }
+                            }
+                        );
+                    } else if (err.message.includes('weak-password')) {
+                        showError('A palavra-passe é demasiado fraca. Utilize pelo menos 6 caracteres.');
+                    } else {
+                        showError('Não foi possível criar a conta. Tente novamente.');
+                    }
+                });
+            };
+
+            const handleDeleteAccount = () => {
+                const user = auth.currentUser;
+                if (user) {
+                    user.delete().then(() => {
+                        // Success modal handled in event listener
+                    }).catch(err => {
+                        if (err.message.includes('requires-recent-login')) {
+                            showError("Para apagar a conta, precisa de ter iniciado sessão recentemente. Termine a sessão e volte a entrar para confirmar.");
+                        } else {
+                            showError(err.message);
+                        }
+                    });
+                }
+            };
+
+            const handleLogout = () => {
+                auth.signOut().then(() => {
+                    window.location.reload();
+                });
+            };
+
+            // Listener de estado em tempo real
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    showLoggedInView(user.displayName || 'Cliente');
+                    // Carregar plano e recursos do Firestore
+                    loadUserData(user.uid);
+                } else {
+                    showLoginView();
+                }
+            });
+
+            const showLoggedInView = (name) => {
+                formLogin.style.display = 'none';
+                formRegister.style.display = 'none';
+                document.getElementById('toggle-container').style.display = 'none';
+                footerNote.style.display = 'none';
+                
+                loggedInView.style.display = 'block';
+                userNameDisplay.innerText = name.split(' ')[0]; // Show first name
+                lucide.createIcons();
+            };
+
+            const showLoginView = () => {
+                loggedInView.style.display = 'none';
+                document.getElementById('toggle-container').style.display = 'flex';
+                footerNote.style.display = 'block';
+                btnLogin.click(); // Volta para o form de login
+            };
+
+            // Carregar dados do utilizador e recursos do Firestore
+            const planOrder = {'Sem Plano': 0, 'Básico': 1, 'Intermédio': 2, 'VIP': 3};
+            const loadUserData = (uid) => {
+                const planDisplay = document.getElementById('user-plan-display');
+                const recursosContainer = document.getElementById('recursos-container');
+
+                // Obter plano do utilizador
+                db.collection('users').doc(uid).get().then(doc => {
+                    let userPlano = 'Sem Plano';
+                    if (doc.exists && doc.data().plano) {
+                        userPlano = doc.data().plano;
+                    }
+                    const planBadgeColor = userPlano === 'VIP' ? '#d97706' : userPlano === 'Intermédio' ? '#3b82f6' : userPlano === 'Básico' ? '#22c55e' : '#94a3b8';
+                    planDisplay.innerHTML = `Plano atual: <span style="display: inline-block; background: ${planBadgeColor}; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${userPlano}</span>`;
+
+                    // Carregar recursos filtrados pelo nível do plano
+                    const userLevel = planOrder[userPlano] || 0;
+                    db.collection('recursos').get().then(snapshot => {
+                        if (snapshot.empty || userLevel === 0) {
+                            recursosContainer.innerHTML = `
+                                <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
+                                    <i data-lucide="book-open" style="width: 32px; height: 32px; color: var(--color-text-light); margin-bottom: 10px;"></i>
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">${userLevel === 0 ? 'Subscreva um plano mensal para desbloquear guias e recursos exclusivos.' : 'Ainda não existem recursos disponíveis.'}</p>
+                                    ${userLevel === 0 ? '<a href="sites.html" class="btn btn-primary" style="margin-top: 15px; padding: 8px 20px; font-size: 0.85rem;">Ver Planos</a>' : ''}
+                                </div>
+                            `;
+                            lucide.createIcons();
+                            return;
+                        }
+                        const recursos = snapshot.docs
+                            .map(d => d.data())
+                            .filter(r => planOrder[r.nivelMinimo || r.nivel] <= userLevel);
+                        
+                        if (recursos.length === 0) {
+                            recursosContainer.innerHTML = `
+                                <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
+                                    <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">Ainda não existem recursos para o seu nível de plano.</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        recursosContainer.innerHTML = `
+                            <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--color-text-main);"><i data-lucide="book-open" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 5px;"></i> Guias & Recursos</h3>
+                            ${recursos.map(r => `
+                                <a href="${r.url}" target="_blank" style="display: block; background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 14px 16px; margin-bottom: 8px; border: 1px solid #e2e8f0; transition: all 0.2s ease; text-decoration: none;" onmouseover="this.style.borderColor='var(--color-primary-light)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.transform='none'">
+                                    <strong style="color: var(--color-text-main); font-size: 0.95rem;">${r.titulo}</strong>
+                                    <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--color-text-sec);">${r.descricao || ''}</p>
+                                </a>
+                            `).join('')}
+                        `;
+                        lucide.createIcons();
+                    });
+                }).catch(() => {
+                    planDisplay.textContent = 'A sua área reservada está ativa.';
+                });
+            };
+
+            // Submissão dos Formulários
+            formRegisterSubmit.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const keepLogged = document.getElementById('keep-logged-register').checked;
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('form-register-submit').querySelector('input[type="email"]').value;
+                const password = document.getElementById('form-register-submit').querySelector('input[type="password"]').value;
+                handleRegister(email, password, name, keepLogged);
+            });
+
+            formLoginSubmit.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const keepLogged = document.getElementById('keep-logged-login').checked;
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('form-login-submit').querySelector('input[type="password"]').value;
+                handleLogin(email, password, keepLogged);
+            });
+
+            // Editar Nome
+            const btnEditName = document.getElementById('btn-edit-name');
+            if (btnEditName) {
+                btnEditName.addEventListener('click', () => {
+                    const user = auth.currentUser;
+                    const currentName = user && user.displayName ? user.displayName : 'Cliente';
+                    
+                    showModal('Mudar Nome', 'Qual é o nome que gostaria de usar na sua conta?', 'info', `
+                        <input type="text" id="modal-input-name" value="${currentName}" style="width: 100%; padding: 16px 20px; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; font-weight: 500; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#cbd5e1'" autocomplete="off">
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <button class="btn btn-outline modal-close" data-action="cancel" style="flex: 1;">Cancelar</button>
+                            <button class="btn btn-primary modal-close" data-action="confirm" style="flex: 1;">Guardar</button>
+                        </div>
+                    `, (action) => {
+                        if (action === 'confirm') {
+                            const newName = document.getElementById('modal-input-name').value;
+                            if (newName && newName.trim() !== "" && newName !== currentName && user) {
+                                user.updateProfile({ displayName: newName }).then(() => {
+                                    window.location.reload();
+                                }).catch(err => showError(err.message));
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Logout
+            btnLogout.addEventListener('click', () => {
+                handleLogout();
+                window.location.reload();
+            });
+
+            // Encerrar Conta
+            const btnDeleteAccount = document.getElementById('btn-delete-account');
+            if (btnDeleteAccount) {
+                btnDeleteAccount.addEventListener('click', () => {
+                    showModal('Encerrar Conta', 'Tem a certeza absoluta? Esta ação não pode ser revertida e perderá o acesso imediato. Não poderá iniciar sessão com os mesmos dados novamente.', 'danger', `
+                        <button class="btn btn-outline modal-close" data-action="cancel" style="flex: 1;">Cancelar</button>
+                        <button class="btn-danger-solid modal-close" data-action="confirm" style="flex: 1;">Sim, Apagar Conta</button>
+                    `, (action) => {
+                        if(action === 'confirm') {
+                            const user = auth.currentUser;
+                            if(user) {
+                                user.delete().then(() => {
+                                    showModal('Conta Encerrada', 'A sua conta e os seus dados foram eliminados permanentemente do nosso sistema.', 'success', `
+                                        <button class="btn btn-primary modal-close" data-action="ok" style="width: 100%;">Voltar ao Início</button>
+                                    `, () => {
+                                        window.location.reload();
+                                    });
+                                }).catch(err => {
+                                    if (err.message.includes('requires-recent-login')) {
+                                        showError("Por segurança, precisa de ter iniciado sessão recentemente para apagar a conta. Termine a sessão e volte a entrar.");
+                                    } else {
+                                        showError(err.message);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                });
+            }
+
+            // Alternância entre abas
+            btnLogin.addEventListener('click', () => {
+                // Ativar botão Login
+                btnLogin.style.background = 'white';
+                btnLogin.style.color = 'var(--color-primary)';
+                btnLogin.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                // Desativar botão Registo
+                btnRegister.style.background = 'transparent';
+                btnRegister.style.color = 'var(--color-text-sec)';
+                btnRegister.style.boxShadow = 'none';
+
+                // Mostrar formulário Login
+                formLogin.style.display = 'block';
+                formRegister.style.display = 'none';
+            });
+
+            btnRegister.addEventListener('click', () => {
+                // Ativar botão Registo
+                btnRegister.style.background = 'white';
+                btnRegister.style.color = 'var(--color-primary)';
+                btnRegister.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                
+                // Desativar botão Login
+                btnLogin.style.background = 'transparent';
+                btnLogin.style.color = 'var(--color-text-sec)';
+                btnLogin.style.boxShadow = 'none';
+
+                // Mostrar formulário Registo
+                formRegister.style.display = 'block';
+                formLogin.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>

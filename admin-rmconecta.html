@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - RM Conecta</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <link rel="stylesheet" href="css/admin.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span>RM Conecta Admin</span>
+            <button class="mobile-close" id="closeSidebar">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <ul class="nav-links">
+            <li class="active"><a href="#" data-target="section-dashboard"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+            <li><a href="#" data-target="section-crm"><i data-lucide="users"></i> CRM / Leads</a></li>
+            <li><a href="#" data-target="section-utilizadores"><i data-lucide="user-cog"></i> Utilizadores</a></li>
+            <li><a href="#" data-target="section-portfolio"><i data-lucide="briefcase"></i> Portfólio</a></li>
+            <li><a href="#" data-target="section-recursos"><i data-lucide="book-open"></i> Recursos</a></li>
+        </ul>
+        <ul class="nav-links" style="flex: none;">
+            <li><a href="#" id="btnLogout"><i data-lucide="log-out"></i> Sair</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="topbar">
+            <button class="mobile-menu-btn" id="openSidebar">
+                <i data-lucide="menu"></i>
+            </button>
+            <div class="topbar-info">
+                <span id="currentDate"></span>
+                <strong>Olá, Admin</strong>
+            </div>
+        </header>
+
+        <!-- Loading state initially -->
+        <div id="fullLoader" class="loader-center" style="height: 80vh; align-items: center;">
+            <div class="loader"></div>
+        </div>
+
+        <div id="appContent" style="display: none;">
+            <!-- Dashboard Section -->
+            <section id="section-dashboard" class="content-section active">
+                <div class="section-header">
+                    <h2>Dashboard Overview</h2>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Leads</h3>
+                        <div class="value" id="statTotalLeads">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Leads Novos</h3>
+                        <div class="value" id="statNovosLeads">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Utilizadores</h3>
+                        <div class="value" id="statUsers">-</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Projetos</h3>
+                        <div class="value" id="statProjects">-</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="font-size: 1rem; margin: 0;">Leads Recentes</h3>
+                        <select class="form-control" id="dashboardLeadsLimit" style="width: auto; padding: 4px 10px; font-size: 0.85rem;">
+                            <option value="5">Últimas 5</option>
+                            <option value="10">Últimas 10</option>
+                            <option value="25">Últimas 25</option>
+                            <option value="0">Todas</option>
+                        </select>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Origem</th>
+                                <th>Estado</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentLeadsTable">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- CRM Section -->
+            <section id="section-crm" class="content-section">
+                <div class="section-header">
+                    <h2>Gestão de Leads (CRM)</h2>
+                    <div style="display: flex; gap: 12px;">
+                        <select class="form-control" id="filterEstado">
+                            <option value="">Todos os Estados</option>
+                            <option value="Novo">Novo</option>
+                            <option value="Em Contacto">Em Contacto</option>
+                            <option value="Fechado">Fechado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Origem</th>
+                                <th>Estado</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="crmTable">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Utilizadores Section -->
+            <section id="section-utilizadores" class="content-section">
+                <div class="section-header">
+                    <h2>Utilizadores</h2>
+                </div>
+                <!-- Tabs -->
+                <div style="display: flex; background: var(--bg-secondary); border-radius: 50px; padding: 4px; margin-bottom: 20px; max-width: 340px;">
+                    <button id="tab-ativos" style="flex: 1; padding: 8px 16px; border: none; background: white; border-radius: 50px; font-weight: 600; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onclick="showUserTab('ativos')">Ativos</button>
+                    <button id="tab-excluidos" style="flex: 1; padding: 8px 16px; border: none; background: transparent; border-radius: 50px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onclick="showUserTab('excluidos')">Contas Excluídas</button>
+                </div>
+                <!-- Tabela Ativos -->
+                <div id="users-ativos" class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Plano Atual</th>
+                                <th>Data Registo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTable"></tbody>
+                    </table>
+                </div>
+                <!-- Tabela Excluídos -->
+                <div id="users-excluidos" class="table-container" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Plano (que tinha)</th>
+                                <th>Data Registo</th>
+                                <th>Data Exclusão</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deletedUsersTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Portfolio Section -->
+            <section id="section-portfolio" class="content-section">
+                <div class="section-header">
+                    <h2>Gestão de Portfólio</h2>
+                    <button class="btn btn-primary" onclick="openModal('portfolioModal')">
+                        <i data-lucide="plus"></i> Novo Projeto
+                    </button>
+                </div>
+                <div class="cards-grid" id="portfolioGrid">
+                    <!-- Injetado via JS -->
+                </div>
+            </section>
+
+            <!-- Recursos Section -->
+            <section id="section-recursos" class="content-section">
+                <div class="section-header">
+                    <h2>Biblioteca de Recursos</h2>
+                    <button class="btn btn-primary" onclick="openModal('recursoModal')">
+                        <i data-lucide="plus"></i> Novo Recurso
+                    </button>
+                </div>
+                <div class="cards-grid" id="recursosGrid">
+                    <!-- Injetado via JS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Portfolio Modal -->
+    <div class="modal-overlay" id="portfolioModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="portfolioModalTitle">Adicionar Projeto</h3>
+                <button class="btn-icon" onclick="closeModal('portfolioModal')"><i data-lucide="x"></i></button>
+            </div>
+            <form id="portfolioForm">
+                <input type="hidden" id="projId">
+                <div class="form-group">
+                    <label>Nome do Projeto</label>
+                    <input type="text" id="projNome" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Negócio</label>
+                    <input type="text" id="projTipo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>URL da Imagem</label>
+                    <input type="url" id="projImg" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Ordem de Apresentação</label>
+                    <input type="number" id="projOrdem" class="form-control" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Desafio</label>
+                    <textarea id="projDesafio" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Resultado</label>
+                    <textarea id="projResultado" class="form-control" rows="3" required></textarea>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn" onclick="closeModal('portfolioModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Projeto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recursos Modal -->
+    <div class="modal-overlay" id="recursoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="recursoModalTitle">Adicionar Recurso</h3>
+                <button class="btn-icon" onclick="closeModal('recursoModal')"><i data-lucide="x"></i></button>
+            </div>
+            <form id="recursoForm">
+                <input type="hidden" id="recId">
+                <div class="form-group">
+                    <label>Título</label>
+                    <input type="text" id="recTitulo" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="recDesc" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>URL do Ficheiro/Link</label>
+                    <input type="url" id="recUrl" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Nível Mínimo de Acesso</label>
+                    <select id="recNivel" class="form-control" required>
+                        <option value="Básico">Básico</option>
+                        <option value="Intermédio">Intermédio</option>
+                        <option value="VIP">VIP</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn" onclick="closeModal('recursoModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Recurso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
