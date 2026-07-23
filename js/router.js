@@ -28,9 +28,14 @@ function initRouter() {
         e.preventDefault();
         navigateTo(url);
     });
+    let currentPath = window.location.pathname;
 
     // Lida com o botão "Voltar" do browser
     window.addEventListener('popstate', (e) => {
+        // Ignora se for apenas uma mudança de âncora (#hash)
+        if (window.location.pathname === currentPath) return;
+        currentPath = window.location.pathname;
+
         if (e.state && e.state.url) {
             navigateTo(e.state.url, false);
         } else {
@@ -86,9 +91,10 @@ async function navigateTo(url, push = true) {
             // 6. Remover classe de saída para iniciar animação de entrada
             contentDiv.classList.remove('page-fade-out');
             
-            // 7. Atualizar barra de endereços do browser
+            // 7. Atualizar URL na barra de navegação (se não for "Voltar")
             if (push) {
                 history.pushState({ url }, '', url);
+                currentPath = window.location.pathname;
             }
             
             // 8. Re-inicializar componentes dinâmicos da nova página
@@ -120,6 +126,11 @@ function reinitScripts(url) {
     // Recarregar os ícones (Lucide)
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
+    }
+    
+    // Re-iniciar animações de scroll
+    if (typeof window.initReveal === 'function') {
+        window.initReveal();
     }
     
     // Se precisarmos de reiniciar listeners que estavam dentro do escopo anterior

@@ -89,27 +89,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Scroll Reveal Animation (Intersection Observer)
-    const revealElements = document.querySelectorAll('.reveal');
-    
-    const revealCallback = (entries, observer) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-                observer.unobserve(entry.target); // Animate only once
-            }
+    window.initReveal = function() {
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Animate only once
+                }
+            });
+        };
+
+        const revealOptions = {
+            threshold: 0.15, // 15% visible before triggering
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+        
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
         });
     };
-
-    const revealOptions = {
-        threshold: 0.15, // 15% visible before triggering
-        rootMargin: "0px 0px -50px 0px"
-    };
-
-    const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
     
-    revealElements.forEach(el => {
-        revealObserver.observe(el);
-    });
+    // Call it immediately on first load
+    window.initReveal();
 
     // 4. Header Hide/Show on Scroll (Optimized with requestAnimationFrame)
     let lastScroll = 0;
