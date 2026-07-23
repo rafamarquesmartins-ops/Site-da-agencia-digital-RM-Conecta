@@ -18,14 +18,33 @@ function initRouter() {
         
         const url = link.getAttribute('href');
         
-        // Ignora se não houver href, ou se for link externo, ou ancora (#)
-        if (!url || url.startsWith('http') || url.startsWith('mailto') || url.startsWith('tel') || url.startsWith('#')) return;
+        // Ignora se não houver href, ou se for link externo
+        if (!url || url.startsWith('http') || url.startsWith('mailto') || url.startsWith('tel')) return;
         
         // Ignora a Área de Cliente e o Admin (segurança e Firebase integrity)
         if (url.includes('area-cliente') || url.includes('admin')) return;
 
-        // Se for um link interno público, interceta a navegação
         e.preventDefault();
+
+        // Se for apenas uma âncora na mesma página (ex: #formulario)
+        if (url.startsWith('#')) {
+            const target = document.querySelector(url);
+            if (target) {
+                // Remove the active class from other plan cards and add to target (highlight effect)
+                document.querySelectorAll('.plan-card').forEach(c => c.style.boxShadow = '');
+                if(target.classList.contains('plan-card') || target.closest('.plan-card')) {
+                    const card = target.classList.contains('plan-card') ? target : target.closest('.plan-card');
+                    card.style.boxShadow = '0 0 0 4px var(--color-accent)';
+                    setTimeout(() => card.style.boxShadow = '', 2000);
+                }
+                
+                target.scrollIntoView({ behavior: 'smooth' });
+                history.pushState(null, '', url);
+            }
+            return;
+        }
+
+        // Se for um link interno público, interceta a navegação
         navigateTo(url);
     });
     let currentPath = window.location.pathname;
@@ -55,8 +74,9 @@ async function navigateTo(url, push = true) {
     contentDiv.classList.add('page-fade-out');
 
     try {
-        // 2. Fazer o download da página seguinte em background
-        const response = await fetch(url);
+        // 2. Fazer o download da página seguinte em background (removendo hash para evitar 404)
+        const fetchUrl = url.split('#')[0];
+        const response = await fetch(fetchUrl || url);
         if (!response.ok) throw new Error('Erro ao carregar página');
         
         // Forçar descodificação em UTF-8 para evitar problemas de charset via AJAX
@@ -110,8 +130,25 @@ async function navigateTo(url, push = true) {
                 if (hamburger) hamburger.classList.remove('active');
             }
             
-            // Scroll para o topo suave
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Scroll para o topo ou para a âncora
+            const hashIndex = url.indexOf('#');
+            if (hashIndex !== -1) {
+                const hash = url.substring(hashIndex);
+                const target = document.querySelector(hash);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                    
+                    if(target.classList.contains('plan-card') || target.closest('.plan-card')) {
+                        const card = target.classList.contains('plan-card') ? target : target.closest('.plan-card');
+                        card.style.boxShadow = '0 0 0 4px var(--color-accent)';
+                        setTimeout(() => card.style.boxShadow = '', 2000);
+                    }
+                } else {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
             
         }, 300); // 300ms = 0.3s de transição
 

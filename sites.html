@@ -311,7 +311,7 @@
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     btn.style.opacity = '1';
-                    window.scrollTo({ top: feedback.offsetTop - 100, behavior: 'smooth' });
+                    window.scrollTo({ top: feedback.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
                 }).catch((err) => {
                     console.error('Erro Firestore:', err);
                     feedback.style.display = 'block';
@@ -322,6 +322,7 @@
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     btn.style.opacity = '1';
+                    window.scrollTo({ top: feedback.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
                 });
             });
         }
