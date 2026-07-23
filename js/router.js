@@ -54,7 +54,10 @@ async function navigateTo(url, push = true) {
         const response = await fetch(url);
         if (!response.ok) throw new Error('Erro ao carregar página');
         
-        const htmlString = await response.text();
+        // Forçar descodificação em UTF-8 para evitar problemas de charset via AJAX
+        const buffer = await response.arrayBuffer();
+        const decoder = new TextDecoder('utf-8');
+        const htmlString = decoder.decode(buffer);
         
         // 3. Converter HTML de texto para DOM
         const parser = new DOMParser();
@@ -91,6 +94,15 @@ async function navigateTo(url, push = true) {
             // 8. Re-inicializar componentes dinâmicos da nova página
             reinitScripts(url);
             updateActiveLinks(url);
+            
+            // 9. Resetar scroll e estado do menu mobile
+            document.body.style.overflow = '';
+            const navLinks = document.querySelector('.nav-links');
+            const hamburger = document.querySelector('.hamburger');
+            if (navLinks && navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                if (hamburger) hamburger.classList.remove('active');
+            }
             
             // Scroll para o topo suave
             window.scrollTo({ top: 0, behavior: 'smooth' });
