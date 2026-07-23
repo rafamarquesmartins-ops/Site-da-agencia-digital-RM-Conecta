@@ -88,25 +88,7 @@
     </footer>
     <script>
         lucide.createIcons();
-        document.querySelectorAll('.faq-question').forEach(item => {
-            item.addEventListener('click', () => {
-                const answer = item.nextElementSibling;
-                const icon = item.querySelector('i');
-                if (answer.style.display === 'block') {
-                    answer.style.display = 'none';
-                    icon.style.transform = 'rotate(0deg)';
-                } else {
-                    // Fechar todas as outras primeiro
-                    document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
-                    document.querySelectorAll('.faq-question i').forEach(i => i.style.transform = 'rotate(0deg)');
-                    
-                    answer.style.display = 'block';
-                    icon.style.transform = 'rotate(180deg)';
-                    icon.style.transition = 'transform 0.3s ease';
-                }
-            });
-        });
-    </script>
+            </script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>

@@ -75,7 +75,7 @@ function showToast(message, type = 'success') {
 // Global data references for filters
 let allLeads = [];
 let recentLeadsData = [];
-let dashboardLeadsLimit = 5;
+let dashboardLeadsLimit = Infinity;
 let currentUsersTab = 'ativos';
 let usersUnsubscribe = null;
 let deletedUsersUnsubscribe = null;
@@ -106,10 +106,10 @@ async function loadDashboardStats() {
             container.innerHTML = `
                 <label for="dashboardLeadsLimit" style="margin-right: 10px; font-weight: 500;">Mostrar Leads:</label>
                 <select id="dashboardLeadsLimit" class="form-control" style="width: auto; display: inline-block;">
-                    <option value="5" selected>5</option>
+                    <option value="5">5</option>
                     <option value="10">10</option>
                     <option value="25">25</option>
-                    <option value="Todos">Todos</option>
+                    <option value="Todos" selected>Todos</option>
                 </select>
             `;
             const table = document.getElementById('recentLeadsTable').closest('table');
@@ -119,7 +119,7 @@ async function loadDashboardStats() {
             
             document.getElementById('dashboardLeadsLimit').addEventListener('change', (e) => {
                 const val = parseInt(e.target.value);
-                dashboardLeadsLimit = val === 0 ? Infinity : val;
+                dashboardLeadsLimit = val === 0 || isNaN(val) ? Infinity : val;
                 renderRecentLeads();
             });
         }
@@ -169,7 +169,8 @@ function renderRecentLeads() {
     
     toShow.forEach(lead => {
         const dateField = lead.dataEnvio || lead.dataCriacao;
-        const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const dateObj = dateField ? new Date(dateField.toDate()) : null;
+        const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; margin-left: 5px;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
         const estado = lead.estado ? lead.estado.charAt(0).toUpperCase() + lead.estado.slice(1).toLowerCase() : 'Novo';
         tbody.innerHTML += `
             <tr>
@@ -212,7 +213,8 @@ function renderCRMTable() {
     
     filtered.forEach(lead => {
         const dateField = lead.dataEnvio || lead.dataCriacao;
-        const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const dateObj = dateField ? new Date(dateField.toDate()) : null;
+        const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; margin-left: 5px;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
         // Capitalize for display
         const estado = lead.estado ? lead.estado.charAt(0).toUpperCase() + lead.estado.slice(1).toLowerCase() : 'Novo';
         const rawEstado = (lead.estado || 'novo').toLowerCase();

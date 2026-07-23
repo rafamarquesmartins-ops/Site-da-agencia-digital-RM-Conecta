@@ -1,4 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // FAQ Global Event Delegation (Funciona com SPA sem re-bind)
+    document.body.addEventListener('click', (e) => {
+        const faqItem = e.target.closest('.faq-question');
+        if (faqItem) {
+            const answer = faqItem.nextElementSibling;
+            const icon = faqItem.querySelector('i');
+            if (answer.style.display === 'block') {
+                answer.style.display = 'none';
+                if(icon) icon.style.transform = 'rotate(0deg)';
+            } else {
+                document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+                document.querySelectorAll('.faq-question i').forEach(i => i.style.transform = 'rotate(0deg)');
+                answer.style.display = 'block';
+                if(icon) {
+                    icon.style.transform = 'rotate(180deg)';
+                    icon.style.transition = 'transform 0.3s ease';
+                }
+            }
+        }
+    });
+
     // 1. Initialize Lucide Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
