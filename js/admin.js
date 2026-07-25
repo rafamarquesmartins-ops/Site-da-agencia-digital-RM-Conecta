@@ -171,14 +171,31 @@ function renderRecentLeads() {
         const dateField = lead.dataEnvio || lead.dataCriacao;
         const dateObj = dateField ? new Date(dateField.toDate()) : null;
         const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; margin-left: 5px;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
-        const estado = lead.estado ? lead.estado.charAt(0).toUpperCase() + lead.estado.slice(1).toLowerCase() : 'Novo';
+        const estadoRaw = lead.estado || 'por contactar';
+        const estadoNormalized = estadoRaw.toLowerCase() === 'novo' ? 'Por Contactar' : estadoRaw.charAt(0).toUpperCase() + estadoRaw.slice(1).toLowerCase();
+        
+        let origemHtml = lead.origem || 'Website';
+        let detalhes = [];
+        if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
+        if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
+        if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
+        if (detalhes.length > 0) {
+            const detalheText = detalhes.join('<br>').replace(/'/g, "&apos;");
+            origemHtml += `<br><span class="badge" style="background: var(--primary-light); color: var(--primary); font-size: 0.75rem; cursor: pointer; margin-top: 5px; display: inline-block;" onclick="showAdminAlert('Detalhes do Pedido', '${detalheText}')">+ Detalhes</span>`;
+        }
+
         tbody.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
-                <td>${lead.origem || 'Website'}</td>
-                <td><span class="badge badge-${estado.toLowerCase().replace(' ', '-')}">${estado}</span></td>
+                <td>${origemHtml}</td>
+                <td><span class="badge badge-${estadoNormalized.toLowerCase().replace(' ', '-')}">${estadoNormalized}</span></td>
                 <td>${date}</td>
+                <td>
+                    <button class="btn-icon" onclick="deleteLead('${lead.id}')" title="Apagar">
+                        <i data-lucide="trash-2" style="color: var(--danger)"></i>
+                    </button>
+                </td>
             </tr>
         `;
     });
@@ -216,18 +233,28 @@ function renderCRMTable() {
         const dateObj = dateField ? new Date(dateField.toDate()) : null;
         const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; margin-left: 5px;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
         // Capitalize for display
-        const estado = lead.estado ? lead.estado.charAt(0).toUpperCase() + lead.estado.slice(1).toLowerCase() : 'Novo';
-        const rawEstado = (lead.estado || 'novo').toLowerCase();
+        const estadoRaw = lead.estado || 'por contactar';
+        const rawEstado = estadoRaw.toLowerCase();
+        
+        let origemHtml = lead.origem || 'Website';
+        let detalhes = [];
+        if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
+        if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
+        if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
+        if (detalhes.length > 0) {
+            const detalheText = detalhes.join('<br>').replace(/'/g, "&apos;");
+            origemHtml += `<br><span class="badge" style="background: var(--primary-light); color: var(--primary); font-size: 0.75rem; cursor: pointer; margin-top: 5px; display: inline-block;" onclick="showAdminAlert('Detalhes do Pedido', '${detalheText}')">+ Detalhes</span>`;
+        }
         
         tbody.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td>${lead.origem || 'Website'}</td>
+                <td>${origemHtml}</td>
                 <td>
                     <select class="form-control" style="width: auto; padding: 4px;" onchange="updateLeadEstado('${lead.id}', this.value)">
-                        <option value="novo" ${rawEstado === 'novo' ? 'selected' : ''}>Novo</option>
+                        <option value="por contactar" ${rawEstado === 'por contactar' || rawEstado === 'novo' ? 'selected' : ''}>Por Contactar</option>
                         <option value="em contacto" ${rawEstado === 'em contacto' ? 'selected' : ''}>Em Contacto</option>
                         <option value="fechado" ${rawEstado === 'fechado' ? 'selected' : ''}>Fechado</option>
                     </select>
@@ -448,6 +475,18 @@ async function deleteUserDoc(id) {
         } catch(err) {
             console.error(err);
             showToast('Erro ao apagar.', 'error');
+        }
+    });
+}
+
+async function deleteUserPermanently(id) {
+    showAdminConfirm('Excluir Definitivamente', 'Tem a certeza absoluta? Isto removerá a conta permanentemente e não pode ser desfeito.', async () => {
+        try {
+            await db.collection('users_deleted').doc(id).delete();
+            showToast('Conta excluída definitivamente.');
+        } catch(err) {
+            console.error(err);
+            showToast('Erro ao excluir conta definitivamente.', 'error');
         }
     });
 }

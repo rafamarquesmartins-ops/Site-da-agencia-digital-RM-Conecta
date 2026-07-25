@@ -99,6 +99,7 @@
                                 <th>Origem</th>
                                 <th>Estado</th>
                                 <th>Data</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="recentLeadsTable">
@@ -115,7 +116,7 @@
                     <div style="display: flex; gap: 12px;">
                         <select class="form-control" id="filterEstado">
                             <option value="">Todos os Estados</option>
-                            <option value="Novo">Novo</option>
+                            <option value="Por Contactar">Por Contactar</option>
                             <option value="Em Contacto">Em Contacto</option>
                             <option value="Fechado">Fechado</option>
                         </select>
@@ -146,11 +147,7 @@
                 <div class="section-header">
                     <h2>Utilizadores</h2>
                 </div>
-                <!-- Tabs -->
-                <div style="display: flex; background: var(--bg-secondary); border-radius: 50px; padding: 4px; margin-bottom: 20px; max-width: 340px;">
-                    <button id="tab-ativos" style="flex: 1; padding: 8px 16px; border: none; background: white; border-radius: 50px; font-weight: 600; color: var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onclick="showUserTab('ativos')">Ativos</button>
-                    <button id="tab-excluidos" style="flex: 1; padding: 8px 16px; border: none; background: transparent; border-radius: 50px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onclick="showUserTab('excluidos')">Contas Excluídas</button>
-                </div>
+
                 <!-- Tabela Ativos -->
                 <div id="users-ativos" class="table-container">
                     <table>

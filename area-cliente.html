@@ -230,12 +230,38 @@
                 });
             };
 
+            const checkPwnedPassword = async (password) => {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(password);
+                const hashBuffer = await crypto.subtle.digest('SHA-1', data);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+                const prefix = hashHex.slice(0, 5);
+                const suffix = hashHex.slice(5);
+                
+                try {
+                    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+                    const text = await res.text();
+                    const lines = text.split('\n');
+                    for (const line of lines) {
+                        if (line.startsWith(suffix)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch(err) {
+                    return false;
+                }
+            };
+
             // --- Firebase Auth (Real Backend) ---
-            const handleLogin = (email, password, keepLogged) => {
+            const handleLogin = (email, password, keepLogged, btn, originalText) => {
                 const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
                 auth.setPersistence(persistence).then(() => {
                     return auth.signInWithEmailAndPassword(email, password);
                 }).catch(err => {
+                    if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                    if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                     if (err.message.includes('invalid-credential') || err.message.includes('wrong-password') || err.message.includes('user-not-found')) {
                         showError('Os dados de acesso estão incorretos. Verifique o email e a palavra-passe e tente novamente.');
                     } else if (err.message.includes('too-many-requests')) {
@@ -246,7 +272,7 @@
                 });
             };
 
-            const handleRegister = (email, password, name, keepLogged) => {
+            const handleRegister = (email, password, name, keepLogged, btn, originalText) => {
                 const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
                 auth.setPersistence(persistence).then(() => {
                     return auth.createUserWithEmailAndPassword(email, password);
@@ -396,21 +422,53 @@
             };
 
             // Submissão dos Formulários
-            formRegisterSubmit.addEventListener('submit', (e) => {
+            formRegisterSubmit.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = formRegisterSubmit.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+                
                 const keepLogged = document.getElementById('keep-logged-register').checked;
                 const name = document.getElementById('register-name').value;
                 const email = document.getElementById('form-register-submit').querySelector('input[type="email"]').value;
                 const password = document.getElementById('form-register-submit').querySelector('input[type="password"]').value;
-                handleRegister(email, password, name, keepLogged);
+
+                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A validar...';
+                btn.disabled = true;
+
+                const isPwned = await checkPwnedPassword(password);
+                if (isPwned) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    document.getElementById('pwnedModal').style.display = 'flex';
+                    return;
+                }
+
+                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A criar...';
+                handleRegister(email, password, name, keepLogged, btn, originalText);
             });
 
-            formLoginSubmit.addEventListener('submit', (e) => {
+            formLoginSubmit.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const btn = formLoginSubmit.querySelector('button[type="submit"]');
+                const originalText = btn.innerHTML;
+
                 const keepLogged = document.getElementById('keep-logged-login').checked;
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('form-login-submit').querySelector('input[type="password"]').value;
-                handleLogin(email, password, keepLogged);
+
+                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A validar...';
+                btn.disabled = true;
+
+                const isPwned = await checkPwnedPassword(password);
+                if (isPwned) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    document.getElementById('pwnedModal').style.display = 'flex';
+                    return;
+                }
+
+                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A entrar...';
+                handleLogin(email, password, keepLogged, btn, originalText);
             });
 
             // Editar Nome
@@ -510,5 +568,17 @@
         });
     </script>
     <script src="js/router.js"></script>
+    <div id="pwnedModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; text-align: center; border-top: 5px solid var(--danger);">
+            <i data-lucide="shield-alert" style="width: 48px; height: 48px; color: var(--danger); margin: 0 auto 15px;"></i>
+            <h2 style="margin-bottom: 15px; color: var(--danger);">Aviso de Segurança Crítico</h2>
+            <p style="margin-bottom: 20px; color: var(--text-secondary);">A palavra-passe que tentaste usar foi encontrada numa fuga de dados mundial no passado (verificado de forma anónima via HaveIBeenPwned).</p>
+            <p style="margin-bottom: 20px; font-weight: bold;">O Google e o teu navegador consideram esta palavra-passe comprometida. Ação Necessária: Redefine a tua palavra-passe urgentemente e utiliza uma palavra-passe única e forte.</p>
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button class="btn btn-primary" onclick="document.getElementById('pwnedModal').style.display = 'none'; document.getElementById('btn-forgot-password').click();">Redefinir Palavra-passe Agora</button>
+                <button class="btn btn-outline" onclick="document.getElementById('pwnedModal').style.display = 'none';">Fechar</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
