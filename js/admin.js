@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Auth Check
     auth.onAuthStateChanged(user => {
         if (!user || user.email !== ADMIN_EMAIL) {
-            window.location.href = 'index.html';
+            alert('Acesso Restrito: Por favor inicie sessão na sua Área de Cliente com o e-mail de Administrador para aceder ao Painel.');
+            window.location.href = 'area-cliente.html';
         } else {
             document.getElementById('fullLoader').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
