@@ -259,13 +259,27 @@
                 }
             };
 
-            // --- Firebase Auth (Real Backend) ---
             const handleLogin = (email, password, keepLogged, btn, originalText) => {
                 const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
                 auth.setPersistence(persistence).then(() => {
                     return auth.signInWithEmailAndPassword(email, password);
-                }).catch(err => {
+                }).then(async (userCredential) => {
+                    const uid = userCredential.user.uid;
+                    const doc = await db.collection('users').doc(uid).get();
+                    if (!doc.exists) {
+                        await auth.signOut();
+                        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                        showError('O seu registo não foi encontrado ou foi removido do sistema.');
+                        return;
+                    }
+                    if (doc.data().disabled) {
+                        await auth.signOut();
+                        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                        showError('Esta conta foi encerrada permanentemente por um administrador.');
+                        return;
+                    }
                     if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                }).catch(err => {
                     if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                     if (err.message.includes('invalid-credential') || err.message.includes('wrong-password') || err.message.includes('user-not-found')) {
                         showError('Os dados de acesso estão incorretos. Verifique o email e a palavra-passe e tente novamente.');
@@ -284,17 +298,19 @@
                 }).then((userCredential) => {
                     if(userCredential && userCredential.user) {
                         // Criar documento do utilizador no Firestore
-                        db.collection('users').doc(userCredential.user.uid).set({
+                        return db.collection('users').doc(userCredential.user.uid).set({
                             nome: name,
                             email: email,
                             plano: 'Sem Plano',
-                            dataRegisto: firebase.firestore.FieldValue.serverTimestamp()
+                            dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
+                            estado: 'Novo',
+                            origem: 'Área de Cliente'
                         });
-                        return userCredential.user.updateProfile({ displayName: name });
                     }
                 }).then(() => {
-                    window.location.reload();
+                    if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                 }).catch(err => {
+                    if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                     if (err.message.includes('email-already-in-use')) {
                         showModal(
                             'Email Já Registado',
@@ -306,7 +322,7 @@
                             </div>`,
                             (action) => {
                                 if (action === 'login') {
-                                    btnLogin.click();
+                                    document.getElementById('btn-login').click();
                                 }
                             }
                         );
@@ -340,12 +356,49 @@
             };
 
             // Listener de estado em tempo real
-            auth.onAuthStateChanged((user) => {
+            let userDocUnsubscribe = null;
+
+            auth.onAuthStateChanged(async (user) => {
                 if (user) {
-                    showLoggedInView(user.displayName || 'Cliente');
-                    // Carregar plano e recursos do Firestore
-                    loadUserData(user.uid);
+                    try {
+                        const doc = await db.collection('users').doc(user.uid).get();
+                        
+                        // Fallback logic handled on login. If they pass, they are here.
+                        if (doc.exists && doc.data().disabled) {
+                            await auth.signOut();
+                            showError('Esta conta foi encerrada permanentemente por um administrador.');
+                            return;
+                        }
+
+                        showLoggedInView(user.displayName || 'Cliente');
+                        
+                        // Set up real-time listener for remote logout
+                        if (userDocUnsubscribe) userDocUnsubscribe();
+                        userDocUnsubscribe = db.collection('users').doc(user.uid).onSnapshot((snap) => {
+                            if (snap.exists) {
+                                const data = snap.data();
+                                if (data.disabled) {
+                                    auth.signOut();
+                                    showError('A sua conta foi encerrada permanentemente por um administrador.');
+                                } else if (data.forceLogout && data.forceLogout > Date.now() - 15000) {
+                                    auth.signOut();
+                                    showError('A sua sessão foi terminada remotamente por um administrador.');
+                                }
+                            } else {
+                                // Admin removed the record!
+                                auth.signOut();
+                                showError('A sua conta foi removida do sistema.');
+                            }
+                        });
+
+                        loadUserData(user.uid);
+                    } catch(err) {
+                        console.error('Erro na validação de sessão:', err);
+                        showLoggedInView(user.displayName || 'Cliente');
+                        loadUserData(user.uid);
+                    }
                 } else {
+                    if (userDocUnsubscribe) { userDocUnsubscribe(); userDocUnsubscribe = null; }
                     showLoginView();
                 }
             });

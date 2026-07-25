@@ -379,10 +379,13 @@ function loadUsersData() {
                     </td>
                     <td>${date}</td>
                     <td>
+                        <button class="btn-icon" onclick="terminarSessao('${doc.id}')" title="Terminar Sessão">
+                            <i data-lucide="log-out" style="color: var(--warning)"></i>
+                        </button>
                         <button class="btn-icon" onclick="encerrarConta('${doc.id}')" title="Encerrar Conta">
                             <i data-lucide="user-x" style="color: var(--danger)"></i>
                         </button>
-                        <button class="btn-icon" onclick="deleteUserDoc('${doc.id}')" title="Remover Registo (Sem Arquivar)">
+                        <button class="btn-icon" onclick="removerRegisto('${doc.id}')" title="Remover Registo (Arquivar)">
                             <i data-lucide="trash-2" style="color: var(--text-light)"></i>
                         </button>
                     </td>
@@ -448,18 +451,23 @@ async function updateUserPlan(id, newPlano) {
     }
 }
 
-async function deleteUserAccountPermanently(id, userEmail) {
-    showAdminConfirm('Encerrar Conta', 'Tem a certeza que deseja encerrar esta conta permanentemente? (Arquiva o registo e remove dos ativos)', async () => {
+async function terminarSessao(id) {
+    showAdminConfirm('Terminar Sessão', 'Deseja forçar o término da sessão ativa deste utilizador? Ele poderá voltar a entrar depois.', async () => {
         try {
-            const userDoc = await db.collection('users').doc(id).get();
-            if(userDoc.exists) {
-                const data = userDoc.data();
-                data.dataExclusao = firebase.firestore.FieldValue.serverTimestamp();
-                data.motivoExclusao = 'Encerrada pelo Admin';
-                await db.collection('users_deleted').doc(id).set(data);
-                await db.collection('users').doc(id).delete();
-                showToast('Conta encerrada e arquivada.');
-            }
+            await db.collection('users').doc(id).update({ forceLogout: Date.now() });
+            showToast('Sessão terminada com sucesso.');
+        } catch(err) {
+            console.error(err);
+            showToast('Erro ao terminar sessão.', 'error');
+        }
+    });
+}
+
+async function encerrarConta(id) {
+    showAdminConfirm('Encerrar Conta', 'Tem a certeza? Isto desativará a conta permanentemente. O utilizador não poderá iniciar sessão novamente.', async () => {
+        try {
+            await db.collection('users').doc(id).update({ disabled: true });
+            showToast('Conta encerrada com sucesso.');
         } catch(err) {
             console.error(err);
             showToast('Erro ao encerrar conta.', 'error');
@@ -467,11 +475,21 @@ async function deleteUserAccountPermanently(id, userEmail) {
     });
 }
 
-async function deleteUserDoc(id) {
-    showAdminConfirm('Remover Registo', 'Atenção: Isto remove apenas o documento do Firestore, não a conta de Auth nem arquiva. Continuar?', async () => {
+async function removerRegisto(id) {
+    showAdminConfirm('Remover Registo', 'Atenção: A ficha do cliente será arquivada e apagada do sistema. O utilizador será expulso ao tentar entrar. Continuar?', async () => {
         try {
-            await db.collection('users').doc(id).delete();
-            showToast('Utilizador apagado.');
+            const userDoc = await db.collection('users').doc(id).get();
+            if(userDoc.exists) {
+                const data = userDoc.data();
+                data.dataExclusao = firebase.firestore.FieldValue.serverTimestamp();
+                data.motivoExclusao = 'Removido pelo Admin';
+                await db.collection('users_deleted').doc(id).set(data);
+                await db.collection('users').doc(id).delete();
+                showToast('Registo arquivado e apagado.');
+            } else {
+                await db.collection('users').doc(id).delete();
+                showToast('Registo apagado.');
+            }
         } catch(err) {
             console.error(err);
             showToast('Erro ao apagar.', 'error');
