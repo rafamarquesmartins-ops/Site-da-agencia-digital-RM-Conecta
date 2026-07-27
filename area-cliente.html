@@ -292,24 +292,29 @@
             };
 
             const handleRegister = (email, password, name, keepLogged, btn, originalText) => {
+                window.isRegistering = true;
                 const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
                 auth.setPersistence(persistence).then(() => {
                     return auth.createUserWithEmailAndPassword(email, password);
                 }).then((userCredential) => {
                     if(userCredential && userCredential.user) {
-                        // Criar documento do utilizador no Firestore
-                        return db.collection('users').doc(userCredential.user.uid).set({
-                            nome: name,
-                            email: email,
-                            plano: 'Sem Plano',
-                            dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
-                            estado: 'Novo',
-                            origem: 'Área de Cliente'
+                        return userCredential.user.updateProfile({ displayName: name }).then(() => {
+                            // Criar documento do utilizador no Firestore
+                            return db.collection('users').doc(userCredential.user.uid).set({
+                                nome: name,
+                                email: email,
+                                plano: 'Sem Plano',
+                                dataCriacao: firebase.firestore.FieldValue.serverTimestamp(),
+                                estado: 'Novo',
+                                origem: 'Área de Cliente'
+                            });
                         });
                     }
                 }).then(() => {
-                    if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                    window.isRegistering = false;
+                    window.location.reload();
                 }).catch(err => {
+                    window.isRegistering = false;
                     if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                     if (err.message.includes('email-already-in-use')) {
                         showModal(
@@ -359,6 +364,8 @@
             let userDocUnsubscribe = null;
 
             auth.onAuthStateChanged(async (user) => {
+                if (window.isRegistering) return; // Prevent race condition during registration
+
                 if (user) {
                     try {
                         const doc = await db.collection('users').doc(user.uid).get();
@@ -385,6 +392,7 @@
                                     showError('A sua sessão foi terminada remotamente por um administrador.');
                                 }
                             } else {
+                                if (window.isRegistering) return;
                                 // Admin removed the record!
                                 auth.signOut();
                                 showError('A sua conta foi removida do sistema.');
@@ -493,13 +501,7 @@
                 btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A validar...';
                 btn.disabled = true;
 
-                const isPwned = await checkPwnedPassword(password);
-                if (isPwned) {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    document.getElementById('pwnedModal').style.display = 'flex';
-                    return;
-                }
+
 
                 btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A criar...';
                 handleRegister(email, password, name, keepLogged, btn, originalText);
@@ -517,13 +519,7 @@
                 btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A validar...';
                 btn.disabled = true;
 
-                const isPwned = await checkPwnedPassword(password);
-                if (isPwned) {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    document.getElementById('pwnedModal').style.display = 'flex';
-                    return;
-                }
+
 
                 btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A entrar...';
                 handleLogin(email, password, keepLogged, btn, originalText);

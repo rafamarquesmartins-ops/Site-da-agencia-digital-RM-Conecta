@@ -111,10 +111,15 @@
 
             <!-- CRM Section -->
             <section id="section-crm" class="content-section">
-                <div class="section-header">
+                <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
                     <h2>Gestão de Leads (CRM)</h2>
-                    <div style="display: flex; gap: 12px;">
-                        <select class="form-control" id="filterEstado">
+                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div style="display: flex; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; overflow-x: auto;">
+                            <button class="btn btn-outline active-tab-btn" onclick="switchCrmTab('ativos')" id="tab-crm-ativos" style="border-color: var(--primary); color: var(--primary);">Leads Ativos</button>
+                            <button class="btn btn-outline" onclick="switchCrmTab('excluidos')" id="tab-crm-excluidos">Leads Excluídos</button>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <select class="form-control" id="filterEstado">
                             <option value="">Todos os Estados</option>
                             <option value="Por Contactar">Por Contactar</option>
                             <option value="Em Contacto">Em Contacto</option>
@@ -122,7 +127,7 @@
                         </select>
                     </div>
                 </div>
-                <div class="table-container">
+                <div class="table-container" id="crm-ativos">
                     <table>
                         <thead>
                             <tr>
@@ -135,17 +140,37 @@
                                 <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="crmTable">
-                            <!-- Injetado via JS -->
-                        </tbody>
+                        <tbody id="crmTable"></tbody>
+                    </table>
+                </div>
+
+                <div class="table-container" id="crm-excluidos" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Telefone</th>
+                                <th>Origem</th>
+                                <th>Data Registo</th>
+                                <th>Data Exclusão</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deletedCrmTable"></tbody>
                     </table>
                 </div>
             </section>
 
             <!-- Utilizadores Section -->
             <section id="section-utilizadores" class="content-section">
-                <div class="section-header">
+                <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
                     <h2>Utilizadores</h2>
+                    <div style="display: flex; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; width: 100%; overflow-x: auto;">
+                        <button class="btn btn-outline active-tab-btn" onclick="switchUsersTab('ativos')" id="tab-users-ativos" style="border-color: var(--primary); color: var(--primary);">Ativos</button>
+                        <button class="btn btn-outline" onclick="switchUsersTab('suspensos')" id="tab-users-suspensos">Suspensos</button>
+                        <button class="btn btn-outline" onclick="switchUsersTab('excluidos')" id="tab-users-excluidos">Excluídos</button>
+                    </div>
                 </div>
 
                 <!-- Tabela Ativos -->
@@ -163,7 +188,22 @@
                         <tbody id="usersTable"></tbody>
                     </table>
                 </div>
-                <!-- Tabela Excluídos -->
+                <!-- Tabela Excluídos e Suspensos -->
+                <div id="users-suspensos" class="table-container" style="display: none;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Email</th>
+                                <th>Plano (que tinha)</th>
+                                <th>Data Registo</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="suspendedUsersTable"></tbody>
+                    </table>
+                </div>
+                
                 <div id="users-excluidos" class="table-container" style="display: none;">
                     <table>
                         <thead>
@@ -173,6 +213,7 @@
                                 <th>Plano (que tinha)</th>
                                 <th>Data Registo</th>
                                 <th>Data Exclusão</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody id="deletedUsersTable"></tbody>

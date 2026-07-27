@@ -37,15 +37,23 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-links a[data-target]').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
+            const targetId = link.getAttribute('data-target');
             document.querySelectorAll('.nav-links li').forEach(li => li.classList.remove('active'));
             link.parentElement.classList.add('active');
             
             document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-            document.getElementById(link.getAttribute('data-target')).classList.add('active');
+            document.getElementById(targetId).classList.add('active');
             
+            localStorage.setItem('adminActiveTab', targetId);
             if(window.innerWidth <= 768) sidebar.classList.remove('open');
         });
     });
+
+    const activeTab = localStorage.getItem('adminActiveTab');
+    if (activeTab) {
+        const targetLink = document.querySelector(`.nav-links a[data-target="${activeTab}"]`);
+        if (targetLink) targetLink.click();
+    }
 });
 
 // Modals
@@ -202,6 +210,24 @@ function renderRecentLeads() {
     });
 }
 
+let currentCrmTab = 'ativos';
+
+function switchCrmTab(tab) {
+    currentCrmTab = tab;
+    document.getElementById('crm-ativos').style.display = tab === 'ativos' ? 'block' : 'none';
+    document.getElementById('crm-excluidos').style.display = tab === 'excluidos' ? 'block' : 'none';
+    
+    document.getElementById('tab-crm-ativos').classList.toggle('active-tab-btn', tab === 'ativos');
+    document.getElementById('tab-crm-ativos').style.borderColor = tab === 'ativos' ? 'var(--primary)' : '';
+    document.getElementById('tab-crm-ativos').style.color = tab === 'ativos' ? 'var(--primary)' : '';
+    
+    document.getElementById('tab-crm-excluidos').classList.toggle('active-tab-btn', tab === 'excluidos');
+    document.getElementById('tab-crm-excluidos').style.borderColor = tab === 'excluidos' ? 'var(--primary)' : '';
+    document.getElementById('tab-crm-excluidos').style.color = tab === 'excluidos' ? 'var(--primary)' : '';
+    
+    renderCRMTable();
+}
+
 // 2. CRM Module
 function loadCRM() {
     db.collection('leads').onSnapshot(snap => {
@@ -221,52 +247,96 @@ function loadCRM() {
 
 function renderCRMTable() {
     const filter = document.getElementById('filterEstado').value;
-    const tbody = document.getElementById('crmTable');
-    tbody.innerHTML = '';
+    const tbodyAtivos = document.getElementById('crmTable');
+    const tbodyExcluidos = document.getElementById('deletedCrmTable');
+    tbodyAtivos.innerHTML = '';
+    tbodyExcluidos.innerHTML = '';
     
-    let filtered = allLeads;
+    let filteredAtivos = allLeads.filter(l => (l.estado || '').toLowerCase() !== 'excluido');
+    let filteredExcluidos = allLeads.filter(l => (l.estado || '').toLowerCase() === 'excluido');
+    
     if(filter) {
-        filtered = allLeads.filter(l => (l.estado || 'novo').toLowerCase() === filter.toLowerCase());
+        filteredAtivos = filteredAtivos.filter(l => {
+            const lEstado = (l.estado || 'por contactar').toLowerCase();
+            const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
+            return normalizedState === filter.toLowerCase();
+        });
     }
     
-    filtered.forEach(lead => {
+    filteredAtivos.forEach(lead => {
         const dateField = lead.dataEnvio || lead.dataCriacao;
-        const dateObj = dateField ? new Date(dateField.toDate()) : null;
-        const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; margin-left: 5px;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
-        // Capitalize for display
-        const estadoRaw = lead.estado || 'por contactar';
-        const rawEstado = estadoRaw.toLowerCase();
+        const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const estadoOriginal = lead.estado || 'Novo';
+        let estadoNormalized = estadoOriginal;
+        if(estadoOriginal.toLowerCase() === 'novo') estadoNormalized = 'Por Contactar';
         
-        let origemHtml = lead.origem || 'Website';
-        let detalhes = [];
-        if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
-        if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
-        if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
-        if (detalhes.length > 0) {
-            const detalheText = detalhes.join('<br>').replace(/'/g, "&apos;");
-            origemHtml += `<br><span class="badge" style="background: var(--primary-light); color: var(--primary); font-size: 0.75rem; cursor: pointer; margin-top: 5px; display: inline-block;" onclick="showAdminAlert('Detalhes do Pedido', '${detalheText}')">+ Detalhes</span>`;
+        let btnVerConta = `
+            <button class="btn-icon" title="Sem Registo" disabled style="opacity: 0.5;">
+                <i data-lucide="user"></i>
+            </button>`;
+            
+        if (lead.email && window.adminUsersByEmail && window.adminUsersByEmail[lead.email.toLowerCase()]) {
+            const u = window.adminUsersByEmail[lead.email.toLowerCase()];
+            const plano = u.plano || 'Sem Plano';
+            const dateField = u.dataRegisto || u.dataCriacao;
+            const uDate = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+            const alertText = `Utilizador: ${u.nome || 'N/A'}<br>Plano Atual: ${plano}<br>Membro desde: ${uDate}`;
+            btnVerConta = `
+                <button class="btn-icon" onclick="showAdminAlert('Informação da Conta', '${alertText}')" title="Ver Conta">
+                    <i data-lucide="user" style="color: var(--success)"></i>
+                </button>`;
         }
         
-        tbody.innerHTML += `
+        tbodyAtivos.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td>${origemHtml}</td>
+                <td><span class="badge badge-primary">${lead.origem || 'Site'}</span></td>
                 <td>
                     <select class="form-control" style="width: auto; padding: 4px;" onchange="updateLeadEstado('${lead.id}', this.value)">
-                        <option value="por contactar" ${rawEstado === 'por contactar' || rawEstado === 'novo' ? 'selected' : ''}>Por Contactar</option>
-                        <option value="em contacto" ${rawEstado === 'em contacto' ? 'selected' : ''}>Em Contacto</option>
-                        <option value="fechado" ${rawEstado === 'fechado' ? 'selected' : ''}>Fechado</option>
+                        <option value="Por Contactar" ${estadoNormalized === 'Por Contactar' ? 'selected' : ''}>Por Contactar</option>
+                        <option value="Em Contacto" ${estadoNormalized === 'Em Contacto' ? 'selected' : ''}>Em Contacto</option>
+                        <option value="Fechado" ${estadoNormalized === 'Fechado' ? 'selected' : ''}>Fechado</option>
                     </select>
                 </td>
                 <td>${date}</td>
                 <td>
+                    ${btnVerConta}
                     <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', \`${(lead.mensagem || 'Sem mensagem').replace(/`/g, "'")}\`)" title="Ver Mensagem">
                         <i data-lucide="eye"></i>
                     </button>
-                    <button class="btn-icon" onclick="deleteLead('${lead.id}')" title="Apagar">
+                    <button class="btn-icon" onclick="deleteLead('${lead.id}')" title="Excluir Lead">
                         <i data-lucide="trash-2" style="color: var(--danger)"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+
+    filteredExcluidos.forEach(lead => {
+        const dateFieldReg = lead.dataEnvio || lead.dataCriacao;
+        const dateReg = dateFieldReg ? new Date(dateFieldReg.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const dateFieldExcl = lead.dataExclusao;
+        const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        
+        tbodyExcluidos.innerHTML += `
+            <tr>
+                <td>${lead.nome || 'N/A'}</td>
+                <td>${lead.email || 'N/A'}</td>
+                <td>${lead.telefone || 'N/A'}</td>
+                <td><span class="badge badge-primary">${lead.origem || 'Site'}</span></td>
+                <td>${dateReg}</td>
+                <td>${dateExcl}</td>
+                <td>
+                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', \`${(lead.mensagem || 'Sem mensagem').replace(/`/g, "'")}\`)" title="Ver Mensagem">
+                        <i data-lucide="eye"></i>
+                    </button>
+                    <button class="btn-icon" onclick="restaurarLead('${lead.id}')" title="Restaurar Lead">
+                        <i data-lucide="refresh-cw" style="color: var(--success)"></i>
+                    </button>
+                    <button class="btn-icon" onclick="deleteLeadPermanently('${lead.id}')" title="Excluir Definitivamente">
+                        <i data-lucide="x-circle" style="color: var(--danger)"></i>
                     </button>
                 </td>
             </tr>
@@ -286,135 +356,133 @@ async function updateLeadEstado(id, newEstado) {
 }
 
 async function deleteLead(id) {
-    showAdminConfirm('Apagar Lead', 'Tem a certeza que deseja apagar esta lead? Esta ação não pode ser desfeita.', async () => {
+    showAdminConfirm('Mover para Excluídos', 'Esta lead será movida para a aba de Excluídos. Continuar?', async () => {
         try {
-            await db.collection('leads').doc(id).delete();
-            showToast('Lead apagada.');
+            await db.collection('leads').doc(id).update({ estado: 'excluido', dataExclusao: firebase.firestore.FieldValue.serverTimestamp() });
+            showToast('Lead movida para excluídos.');
         } catch(err) {
             console.error(err);
-            showToast('Erro ao apagar.', 'error');
+            showToast('Erro ao excluir.', 'error');
+        }
+    });
+}
+
+async function restaurarLead(id) {
+    try {
+        await db.collection('leads').doc(id).update({ estado: 'novo', dataExclusao: firebase.firestore.FieldValue.delete() });
+        showToast('Lead restaurada.');
+    } catch(err) {
+        console.error(err);
+        showToast('Erro ao restaurar lead.', 'error');
+    }
+}
+
+async function deleteLeadPermanently(id) {
+    showAdminConfirm('Excluir Definitivamente', 'Tem a certeza que deseja apagar permanentemente esta lead? Esta ação não pode ser desfeita.', async () => {
+        try {
+            await db.collection('leads').doc(id).delete();
+            showToast('Lead apagada definitivamente.');
+        } catch(err) {
+            console.error(err);
+            showToast('Erro ao apagar definitivamente.', 'error');
         }
     });
 }
 
 // 3. Utilizadores Module
-function initUsersTabs() {
-    if (document.getElementById('usersTabsContainer')) return;
+function switchUsersTab(tab) {
+    document.getElementById('users-ativos').style.display = tab === 'ativos' ? 'block' : 'none';
+    document.getElementById('users-suspensos').style.display = tab === 'suspensos' ? 'block' : 'none';
+    document.getElementById('users-excluidos').style.display = tab === 'excluidos' ? 'block' : 'none';
     
-    const container = document.createElement('div');
-    container.id = 'usersTabsContainer';
-    container.style.display = 'flex';
-    container.style.gap = '10px';
-    container.style.marginBottom = '20px';
+    document.getElementById('tab-users-ativos').classList.toggle('active-tab-btn', tab === 'ativos');
+    document.getElementById('tab-users-ativos').style.borderColor = tab === 'ativos' ? 'var(--primary)' : '';
+    document.getElementById('tab-users-ativos').style.color = tab === 'ativos' ? 'var(--primary)' : '';
     
-    container.innerHTML = `
-        <button id="tabUsersAtivos" class="btn btn-primary" style="border-radius: 50px;">Ativos</button>
-        <button id="tabUsersExcluidos" class="btn btn-outline" style="border-radius: 50px;">Contas Excluídas</button>
-    `;
+    document.getElementById('tab-users-suspensos').classList.toggle('active-tab-btn', tab === 'suspensos');
+    document.getElementById('tab-users-suspensos').style.borderColor = tab === 'suspensos' ? 'var(--primary)' : '';
+    document.getElementById('tab-users-suspensos').style.color = tab === 'suspensos' ? 'var(--primary)' : '';
     
-    const table = document.getElementById('usersTable').closest('table');
-    table.parentNode.insertBefore(container, table);
+    document.getElementById('tab-users-excluidos').classList.toggle('active-tab-btn', tab === 'excluidos');
+    document.getElementById('tab-users-excluidos').style.borderColor = tab === 'excluidos' ? 'var(--primary)' : '';
+    document.getElementById('tab-users-excluidos').style.color = tab === 'excluidos' ? 'var(--primary)' : '';
     
-    document.getElementById('tabUsersAtivos').addEventListener('click', () => {
-        currentUsersTab = 'ativos';
-        updateUsersTabsUI();
-        loadUsersData();
-    });
-    
-    document.getElementById('tabUsersExcluidos').addEventListener('click', () => {
-        currentUsersTab = 'excluidos';
-        updateUsersTabsUI();
-        loadDeletedUsersData();
-    });
-}
-
-function updateUsersTabsUI() {
-    const btnAtivos = document.getElementById('tabUsersAtivos');
-    const btnExcluidos = document.getElementById('tabUsersExcluidos');
-    if (currentUsersTab === 'ativos') {
-        btnAtivos.className = 'btn btn-primary';
-        btnExcluidos.className = 'btn btn-outline';
-    } else {
-        btnAtivos.className = 'btn btn-outline';
-        btnExcluidos.className = 'btn btn-primary';
-    }
+    loadUsersData();
 }
 
 function loadUsers() {
-    initUsersTabs();
     loadUsersData();
 }
 
 function loadUsersData() {
+    if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
     if (deletedUsersUnsubscribe) { deletedUsersUnsubscribe(); deletedUsersUnsubscribe = null; }
     
-    const thead = document.getElementById('usersTable').closest('table').querySelector('thead tr');
-    thead.innerHTML = `
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Plano</th>
-        <th>Data Registo</th>
-        <th>Ações</th>
-    `;
-    
     usersUnsubscribe = db.collection('users').onSnapshot(snap => {
-        if (currentUsersTab !== 'ativos') return;
-        const tbody = document.getElementById('usersTable');
-        tbody.innerHTML = '';
+        window.adminUsersByEmail = {};
+        const tbodyAtivos = document.getElementById('usersTable');
+        const tbodySuspensos = document.getElementById('suspendedUsersTable');
+        tbodyAtivos.innerHTML = '';
+        tbodySuspensos.innerHTML = '';
+        
         snap.forEach(doc => {
             const user = doc.data();
+            if (user.email) window.adminUsersByEmail[user.email.toLowerCase()] = { id: doc.id, ...user };
             const dateField = user.dataRegisto || user.dataCriacao;
             const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
             const plano = user.plano || 'Sem Plano';
-            tbody.innerHTML += `
-                <tr>
-                    <td>${user.nome || 'N/A'}</td>
-                    <td>${user.email || 'N/A'}</td>
-                    <td>
-                        <select class="form-control" style="width: auto; padding: 4px;" onchange="updateUserPlan('${doc.id}', this.value)">
-                            <option value="Sem Plano" ${plano === 'Sem Plano' ? 'selected' : ''}>Sem Plano</option>
-                            <option value="Básico" ${plano === 'Básico' ? 'selected' : ''}>Básico</option>
-                            <option value="Intermédio" ${plano === 'Intermédio' ? 'selected' : ''}>Intermédio</option>
-                            <option value="VIP" ${plano === 'VIP' ? 'selected' : ''}>VIP</option>
-                        </select>
-                    </td>
-                    <td>${date}</td>
-                    <td>
-                        <button class="btn-icon" onclick="terminarSessao('${doc.id}')" title="Terminar Sessão">
-                            <i data-lucide="log-out" style="color: var(--warning)"></i>
-                        </button>
-                        <button class="btn-icon" onclick="encerrarConta('${doc.id}')" title="Encerrar Conta">
-                            <i data-lucide="user-x" style="color: var(--danger)"></i>
-                        </button>
-                        <button class="btn-icon" onclick="removerRegisto('${doc.id}')" title="Remover Registo (Arquivar)">
-                            <i data-lucide="trash-2" style="color: var(--text-light)"></i>
-                        </button>
-                    </td>
-                </tr>
-            `;
+            
+            if (user.disabled || user.status === 'suspenso') {
+                tbodySuspensos.innerHTML += `
+                    <tr>
+                        <td>${user.nome || 'N/A'}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${plano}</td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="btn-icon" onclick="restaurarConta('${doc.id}')" title="Reativar Conta">
+                                <i data-lucide="user-check" style="color: var(--success)"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tbodyAtivos.innerHTML += `
+                    <tr>
+                        <td>${user.nome || 'N/A'}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>
+                            <select class="form-control" style="width: auto; padding: 4px;" onchange="updateUserPlan('${doc.id}', this.value)">
+                                <option value="Sem Plano" ${plano === 'Sem Plano' ? 'selected' : ''}>Sem Plano</option>
+                                <option value="Básico" ${plano === 'Básico' ? 'selected' : ''}>Básico</option>
+                                <option value="Intermédio" ${plano === 'Intermédio' ? 'selected' : ''}>Intermédio</option>
+                                <option value="VIP" ${plano === 'VIP' ? 'selected' : ''}>VIP</option>
+                            </select>
+                        </td>
+                        <td>${date}</td>
+                        <td>
+                            <button class="btn-icon" onclick="terminarSessao('${doc.id}')" title="Terminar Sessão (Forçar Logout)">
+                                <i data-lucide="log-out"></i>
+                            </button>
+                            <button class="btn-icon" onclick="suspenderConta('${doc.id}')" title="Suspender Conta (Bloqueio Temporário)">
+                                <i data-lucide="pause-circle" style="color: var(--warning)"></i>
+                            </button>
+                            <button class="btn-icon" onclick="encerrarConta('${doc.id}')" title="Encerrar Conta Permanentemente">
+                                <i data-lucide="user-x" style="color: var(--danger)"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
         });
         lucide.createIcons();
-    }, err => console.error(err));
-}
+    });
 
-function loadDeletedUsersData() {
-    if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
-    
-    const thead = document.getElementById('usersTable').closest('table').querySelector('thead tr');
-    thead.innerHTML = `
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Plano (que tinha)</th>
-        <th>Data Registo</th>
-        <th>Data Exclusão</th>
-    `;
-    
     deletedUsersUnsubscribe = db.collection('users_deleted').onSnapshot(snap => {
-        if (currentUsersTab !== 'excluidos') return;
-        const tbody = document.getElementById('usersTable');
-        tbody.innerHTML = '';
+        const tbodyExcluidos = document.getElementById('deletedUsersTable');
+        tbodyExcluidos.innerHTML = '';
         const deletedUsers = [];
-        snap.forEach(doc => deletedUsers.push(doc.data()));
+        snap.forEach(doc => deletedUsers.push({ id: doc.id, ...doc.data() }));
         
         deletedUsers.sort((a, b) => {
             const tA = a.dataExclusao ? a.dataExclusao.toMillis() : 0;
@@ -428,18 +496,23 @@ function loadDeletedUsersData() {
             const dateFieldExcl = user.dataExclusao;
             const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
             const plano = user.plano || 'Sem Plano';
-            tbody.innerHTML += `
+            tbodyExcluidos.innerHTML += `
                 <tr>
                     <td>${user.nome || 'N/A'}</td>
                     <td>${user.email || 'N/A'}</td>
                     <td>${plano}</td>
                     <td>${dateReg}</td>
                     <td>${dateExcl}</td>
+                    <td>
+                        <button class="btn-icon" onclick="recuperarRegistoExcluido('${user.id}')" title="Recuperar Conta">
+                            <i data-lucide="refresh-cw" style="color: var(--success)"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
         });
         lucide.createIcons();
-    }, err => console.error(err));
+    });
 }
 
 async function updateUserPlan(id, newPlano) {
@@ -464,11 +537,44 @@ async function terminarSessao(id) {
     });
 }
 
-async function encerrarConta(id) {
-    showAdminConfirm('Encerrar Conta', 'Tem a certeza? Isto desativará a conta permanentemente. O utilizador não poderá iniciar sessão novamente.', async () => {
+async function suspenderConta(id) {
+    showAdminConfirm('Suspender Conta', 'Deseja suspender temporariamente esta conta?', async () => {
         try {
-            await db.collection('users').doc(id).update({ disabled: true });
-            showToast('Conta encerrada com sucesso.');
+            await db.collection('users').doc(id).update({ status: 'suspenso' });
+            showToast('Conta suspensa com sucesso.');
+        } catch(err) {
+            console.error(err);
+            showToast('Erro ao suspender conta.', 'error');
+        }
+    });
+}
+
+async function restaurarConta(id) {
+    showAdminConfirm('Reativar Conta', 'Deseja restaurar esta conta para o estado ativo?', async () => {
+        try {
+            await db.collection('users').doc(id).update({ status: 'ativo', disabled: firebase.firestore.FieldValue.delete() });
+            showToast('Conta reativada com sucesso.');
+        } catch(err) {
+            console.error(err);
+            showToast('Erro ao reativar conta.', 'error');
+        }
+    });
+}
+
+async function encerrarConta(id) {
+    showAdminConfirm('Encerrar Conta', 'Tem a certeza? A conta será movida para as contas excluídas e o acesso permanentemente bloqueado.', async () => {
+        try {
+            const userDoc = await db.collection('users').doc(id).get();
+            if(userDoc.exists) {
+                const data = userDoc.data();
+                data.dataExclusao = firebase.firestore.FieldValue.serverTimestamp();
+                data.motivoExclusao = 'Encerrado pelo Admin';
+                data.disabled = true;
+                data.status = 'excluido';
+                await db.collection('users_deleted').doc(id).set(data);
+                await db.collection('users').doc(id).delete();
+                showToast('Conta encerrada e arquivada.');
+            }
         } catch(err) {
             console.error(err);
             showToast('Erro ao encerrar conta.', 'error');
@@ -476,24 +582,23 @@ async function encerrarConta(id) {
     });
 }
 
-async function removerRegisto(id) {
-    showAdminConfirm('Remover Registo', 'Atenção: A ficha do cliente será arquivada e apagada do sistema. O utilizador será expulso ao tentar entrar. Continuar?', async () => {
+async function recuperarRegistoExcluido(id) {
+    showAdminConfirm('Recuperar Conta Excluída', 'Deseja recuperar esta conta para os utilizadores ativos?', async () => {
         try {
-            const userDoc = await db.collection('users').doc(id).get();
-            if(userDoc.exists) {
-                const data = userDoc.data();
-                data.dataExclusao = firebase.firestore.FieldValue.serverTimestamp();
-                data.motivoExclusao = 'Removido pelo Admin';
-                await db.collection('users_deleted').doc(id).set(data);
-                await db.collection('users').doc(id).delete();
-                showToast('Registo arquivado e apagado.');
-            } else {
-                await db.collection('users').doc(id).delete();
-                showToast('Registo apagado.');
+            const doc = await db.collection('users_deleted').doc(id).get();
+            if (doc.exists) {
+                const data = doc.data();
+                delete data.dataExclusao;
+                delete data.motivoExclusao;
+                delete data.disabled;
+                data.status = 'ativo';
+                await db.collection('users').doc(id).set(data);
+                await db.collection('users_deleted').doc(id).delete();
+                showToast('Conta recuperada com sucesso.');
             }
         } catch(err) {
             console.error(err);
-            showToast('Erro ao apagar.', 'error');
+            showToast('Erro ao recuperar conta.', 'error');
         }
     });
 }
