@@ -288,6 +288,8 @@
                 btn.disabled = true;
                 btn.style.opacity = '0.7';
 
+                const dispositivo = /Mobi|Android/i.test(navigator.userAgent) ? 'Telemóvel' : 'Computador';
+
                 db.collection('leads').add({
                     nome: document.getElementById('maq-nome').value,
                     negocio: document.getElementById('maq-negocio').value,
@@ -300,6 +302,7 @@
                     mensagem: document.getElementById('maq-mensagem').value,
                     origem: 'maquete',
                     estado: 'novo',
+                    dispositivo: dispositivo,
                     dataEnvio: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
                     feedback.style.display = 'block';

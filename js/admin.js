@@ -252,11 +252,16 @@ function renderCRMTable() {
     tbodyAtivos.innerHTML = '';
     tbodyExcluidos.innerHTML = '';
     
-    let filteredAtivos = allLeads.filter(l => (l.estado || '').toLowerCase() !== 'excluido');
-    let filteredExcluidos = allLeads.filter(l => (l.estado || '').toLowerCase() === 'excluido');
+    let filteredAtivos = allLeads.filter(l => !l.isDeleted);
+    let filteredExcluidos = allLeads.filter(l => l.isDeleted);
     
     if(filter) {
         filteredAtivos = filteredAtivos.filter(l => {
+            const lEstado = (l.estado || 'por contactar').toLowerCase();
+            const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
+            return normalizedState === filter.toLowerCase();
+        });
+        filteredExcluidos = filteredExcluidos.filter(l => {
             const lEstado = (l.estado || 'por contactar').toLowerCase();
             const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
             return normalizedState === filter.toLowerCase();
@@ -271,7 +276,7 @@ function renderCRMTable() {
         if(estadoOriginal.toLowerCase() === 'novo') estadoNormalized = 'Por Contactar';
         
         let btnVerConta = `
-            <button class="btn-icon" title="Sem Registo" disabled style="opacity: 0.5;">
+            <button class="btn-icon" onclick="showAdminAlert('Informação da Conta', 'Este utilizador não tem conta criada.')" title="Sem Registo" style="opacity: 0.5;">
                 <i data-lucide="user"></i>
             </button>`;
             
@@ -282,17 +287,24 @@ function renderCRMTable() {
             const uDate = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
             const alertText = `Utilizador: ${u.nome || 'N/A'}<br>Plano Atual: ${plano}<br>Membro desde: ${uDate}`;
             btnVerConta = `
-                <button class="btn-icon" onclick="showAdminAlert('Informação da Conta', '${alertText}')" title="Ver Conta">
+                <button class="btn-icon" data-info="${encodeURIComponent(alertText)}" onclick="showAdminAlert('Informação da Conta', decodeURIComponent(this.dataset.info))" title="Ver Conta">
                     <i data-lucide="user" style="color: var(--success)"></i>
                 </button>`;
         }
         
+        let dispositivoIcon = '';
+        if (lead.dispositivo === 'Telemóvel') {
+            dispositivoIcon = '<i data-lucide="smartphone" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Telemóvel"></i>';
+        } else if (lead.dispositivo === 'Computador') {
+            dispositivoIcon = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
+        }
+
         tbodyAtivos.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td><span class="badge badge-primary">${lead.origem || 'Site'}</span></td>
+                <td><span class="badge badge-primary" style="display:inline-flex;align-items:center;">${lead.origem || 'Site'} ${dispositivoIcon}</span></td>
                 <td>
                     <select class="form-control" style="width: auto; padding: 4px;" onchange="updateLeadEstado('${lead.id}', this.value)">
                         <option value="Por Contactar" ${estadoNormalized === 'Por Contactar' ? 'selected' : ''}>Por Contactar</option>
@@ -320,12 +332,19 @@ function renderCRMTable() {
         const dateFieldExcl = lead.dataExclusao;
         const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
         
+        let dispositivoIconEx = '';
+        if (lead.dispositivo === 'Telemóvel') {
+            dispositivoIconEx = '<i data-lucide="smartphone" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Telemóvel"></i>';
+        } else if (lead.dispositivo === 'Computador') {
+            dispositivoIconEx = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
+        }
+
         tbodyExcluidos.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td><span class="badge badge-primary">${lead.origem || 'Site'}</span></td>
+                <td><span class="badge badge-primary" style="display:inline-flex;align-items:center;">${lead.origem || 'Site'} ${dispositivoIconEx}</span></td>
                 <td>${dateReg}</td>
                 <td>${dateExcl}</td>
                 <td>
@@ -358,7 +377,7 @@ async function updateLeadEstado(id, newEstado) {
 async function deleteLead(id) {
     showAdminConfirm('Mover para Excluídos', 'Esta lead será movida para a aba de Excluídos. Continuar?', async () => {
         try {
-            await db.collection('leads').doc(id).update({ estado: 'excluido', dataExclusao: firebase.firestore.FieldValue.serverTimestamp() });
+            await db.collection('leads').doc(id).update({ isDeleted: true, dataExclusao: firebase.firestore.FieldValue.serverTimestamp() });
             showToast('Lead movida para excluídos.');
         } catch(err) {
             console.error(err);
@@ -369,7 +388,7 @@ async function deleteLead(id) {
 
 async function restaurarLead(id) {
     try {
-        await db.collection('leads').doc(id).update({ estado: 'novo', dataExclusao: firebase.firestore.FieldValue.delete() });
+        await db.collection('leads').doc(id).update({ isDeleted: firebase.firestore.FieldValue.delete(), dataExclusao: firebase.firestore.FieldValue.delete() });
         showToast('Lead restaurada.');
     } catch(err) {
         console.error(err);

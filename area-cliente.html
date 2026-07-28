@@ -65,9 +65,12 @@
                             <label style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
                             <input type="email" id="login-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                         </div>
-                        <div style="margin-bottom: 20px;">
+                        <div style="margin-bottom: 20px; position: relative;">
                             <label style="display: block; font-weight: 500; margin-bottom: 5px;">Palavra-passe</label>
-                            <input type="password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                            <input type="password" id="login-password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                            <button type="button" onclick="togglePasswordVisibility('login-password')" style="position: absolute; right: 10px; top: 38px; border: none; background: none; cursor: pointer; color: #64748b;">
+                                <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                            </button>
                         </div>
                         <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" id="keep-logged-login" style="width: auto;">
@@ -87,11 +90,14 @@
                         </div>
                         <div style="margin-bottom: 15px;">
                             <label style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
-                            <input type="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                            <input type="email" id="register-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                         </div>
-                        <div style="margin-bottom: 20px;">
+                        <div style="margin-bottom: 20px; position: relative;">
                             <label style="display: block; font-weight: 500; margin-bottom: 5px;">Palavra-passe</label>
-                            <input type="password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                            <input type="password" id="register-password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                            <button type="button" onclick="togglePasswordVisibility('register-password')" style="position: absolute; right: 10px; top: 38px; border: none; background: none; cursor: pointer; color: #64748b;">
+                                <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                            </button>
                         </div>
                         <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" id="keep-logged-register" style="width: auto;">
@@ -159,6 +165,11 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/main.js"></script>
     <script>
+        function togglePasswordVisibility(id) {
+            const input = document.getElementById(id);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const btnLogin = document.getElementById('btn-login');
             const btnRegister = document.getElementById('btn-register');
@@ -168,7 +179,7 @@
             const formLoginSubmit = document.getElementById('form-login-submit');
             const formRegisterSubmit = document.getElementById('form-register-submit');
             const loggedInView = document.getElementById('logged-in-view');
-            const toggleContainer = document.getElementById('toggle-container'); // Need to add this ID
+            const toggleContainer = document.getElementById('toggle-container');
             const footerNote = document.getElementById('footer-note');
             const btnLogout = document.getElementById('btn-logout');
             const userNameDisplay = document.getElementById('user-name-display');
@@ -230,42 +241,12 @@
                 });
             };
 
-            const checkPwnedPassword = async (password) => {
-                try {
-                    if (!window.crypto || !window.crypto.subtle) {
-                        console.warn('crypto.subtle não disponível. A verificação HaveIBeenPwned será ignorada.');
-                        return false;
-                    }
-                    const encoder = new TextEncoder();
-                    const data = encoder.encode(password);
-                    const hashBuffer = await crypto.subtle.digest('SHA-1', data);
-                    const hashArray = Array.from(new Uint8Array(hashBuffer));
-                    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-                    const prefix = hashHex.slice(0, 5);
-                    const suffix = hashHex.slice(5);
-                    
-                    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
-                    const text = await res.text();
-                    const lines = text.split('\n');
-                    for (const line of lines) {
-                        if (line.startsWith(suffix)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                } catch(err) {
-                    console.error('Erro na verificação de password vazada:', err);
-                    return false;
-                }
-            };
-
             const handleLogin = (email, password, keepLogged, btn, originalText) => {
                 const persistence = keepLogged ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION;
                 auth.setPersistence(persistence).then(() => {
                     return auth.signInWithEmailAndPassword(email, password);
                 }).then(async (userCredential) => {
-                    const uid = userCredential.user.uid;
-                    const doc = await db.collection('users').doc(uid).get();
+                    const doc = await db.collection('users').doc(userCredential.user.uid).get();
                     if (!doc.exists) {
                         await auth.signOut();
                         if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
@@ -278,7 +259,15 @@
                         showError('Esta conta foi encerrada permanentemente por um administrador.');
                         return;
                     }
+                    if (doc.data().status === 'suspenso') {
+                        await auth.signOut();
+                        if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                        showError('A sua conta encontra-se temporariamente suspensa por um administrador.');
+                        return;
+                    }
+                    showLoggedInView(userCredential.user.displayName || 'Cliente');
                     if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
+                    formLoginSubmit.reset();
                 }).catch(err => {
                     if (btn) { btn.innerHTML = originalText; btn.disabled = false; }
                     if (err.message.includes('invalid-credential') || err.message.includes('wrong-password') || err.message.includes('user-not-found')) {
@@ -364,6 +353,8 @@
             let userDocUnsubscribe = null;
 
             auth.onAuthStateChanged(async (user) => {
+                document.getElementById('auth-loading').style.display = 'none';
+                
                 if (window.isRegistering) return; // Prevent race condition during registration
 
                 if (user) {
@@ -371,9 +362,9 @@
                         const doc = await db.collection('users').doc(user.uid).get();
                         
                         // Fallback logic handled on login. If they pass, they are here.
-                        if (doc.exists && doc.data().disabled) {
+                        if (doc.exists && (doc.data().disabled || doc.data().status === 'suspenso')) {
                             await auth.signOut();
-                            showError('Esta conta foi encerrada permanentemente por um administrador.');
+                            showError('A sua conta foi suspensa ou encerrada por um administrador.');
                             return;
                         }
 
@@ -387,9 +378,15 @@
                                 if (data.disabled) {
                                     auth.signOut();
                                     showError('A sua conta foi encerrada permanentemente por um administrador.');
-                                } else if (data.forceLogout && data.forceLogout > Date.now() - 15000) {
+                                } else if (data.status === 'suspenso') {
                                     auth.signOut();
-                                    showError('A sua sessão foi terminada remotamente por um administrador.');
+                                    showError('A sua conta encontra-se temporariamente suspensa por um administrador.');
+                                } else if (data.forceLogout) {
+                                    const loginTime = new Date(user.metadata.lastSignInTime).getTime();
+                                    if (data.forceLogout > loginTime) {
+                                        auth.signOut();
+                                        showError('A sua sessão foi terminada remotamente por um administrador.');
+                                    }
                                 }
                             } else {
                                 if (window.isRegistering) return;
@@ -619,20 +616,22 @@
                 formRegister.style.display = 'block';
                 formLogin.style.display = 'none';
             });
+            document.querySelectorAll('.toggle-password').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.previousElementSibling;
+                    const icon = this.querySelector('i');
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.setAttribute('data-lucide', 'eye-off');
+                    } else {
+                        input.type = 'password';
+                        icon.setAttribute('data-lucide', 'eye');
+                    }
+                    lucide.createIcons();
+                });
+            });
         });
     </script>
     <script src="js/router.js"></script>
-    <div id="pwnedModal" class="modal">
-        <div class="modal-content" style="max-width: 500px; text-align: center; border-top: 5px solid var(--danger);">
-            <i data-lucide="shield-alert" style="width: 48px; height: 48px; color: var(--danger); margin: 0 auto 15px;"></i>
-            <h2 style="margin-bottom: 15px; color: var(--danger);">Aviso de Segurança Crítico</h2>
-            <p style="margin-bottom: 20px; color: var(--text-secondary);">A palavra-passe que tentaste usar foi encontrada numa fuga de dados mundial no passado (verificado de forma anónima via HaveIBeenPwned).</p>
-            <p style="margin-bottom: 20px; font-weight: bold;">O Google e o teu navegador consideram esta palavra-passe comprometida. Ação Necessária: Redefine a tua palavra-passe urgentemente e utiliza uma palavra-passe única e forte.</p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button class="btn btn-primary" onclick="document.getElementById('pwnedModal').style.display = 'none'; document.getElementById('btn-forgot-password').click();">Redefinir Palavra-passe Agora</button>
-                <button class="btn btn-outline" onclick="document.getElementById('pwnedModal').style.display = 'none';">Fechar</button>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
