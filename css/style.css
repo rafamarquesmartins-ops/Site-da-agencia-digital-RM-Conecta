@@ -178,16 +178,7 @@ section {
   border-color: #cbd5e1;
 }
 
-.btn-danger-interactive {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.btn-danger-interactive:hover {
-  background: #ef4444 !important;
-  color: white !important;
-  border-color: #ef4444 !important;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-}
+
 
 .btn-danger-solid {
   background: #ef4444;
@@ -582,4 +573,12 @@ label {
   .footer li {
     justify-content: center;
   }
+}
+
+
+@media (max-width: 768px) {
+    .grid-2-col-reverse-mobile {
+        display: flex;
+        flex-direction: column-reverse;
+    }
 }

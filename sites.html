@@ -19,6 +19,18 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <!-- intl-tel-input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
+    <style>
+        .iti { width: 100%; display: block; }
+        .iti__dropdown-content { z-index: 9999 !important; }
+        .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
+        @media (min-resolution: 2x) {
+          .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
+        }
+    </style>
 </head>
 <body>
 
@@ -185,7 +197,7 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="form-grid-mobile">
                             <div>
                                 <label for="maq-nome" style="display: block; font-weight: 500; margin-bottom: 5px;">Nome Completo</label>
-                                <input type="text" id="maq-nome" name="nome" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                                <input type="text" id="maq-nome" name="nome" autocomplete="name" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                             </div>
                             <div>
                                 <label for="maq-negocio" style="display: block; font-weight: 500; margin-bottom: 5px;">Nome do Negócio</label>
@@ -195,11 +207,11 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;" class="form-grid-mobile">
                             <div>
                                 <label for="maq-email" style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
-                                <input type="email" id="maq-email" name="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                                <input type="email" id="maq-email" name="email" autocomplete="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                             </div>
                             <div>
                                 <label for="maq-telefone" style="display: block; font-weight: 500; margin-bottom: 5px;">Telefone / WhatsApp</label>
-                                <input type="tel" id="maq-telefone" name="telefone" style="width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                                <input type="tel" id="maq-telefone" name="telefone" autocomplete="tel" style="width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                                 <div id="maq-telefone-erro" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px;">Número inválido</div>
                             </div>
                         </div>
@@ -250,17 +262,7 @@
     </section>
 
 
-    <!-- intl-tel-input -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
-    <style>
-        .iti { width: 100%; display: block; }
-        .iti__dropdown-content { z-index: 9999 !important; }
-        .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
-        @media (min-resolution: 2x) {
-          .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
-        }
-    </style>
+    
 
 <script>
 

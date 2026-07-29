@@ -18,6 +18,18 @@
     <link rel="canonical" href="https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/contactos">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <!-- intl-tel-input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
+    <style>
+        .iti { width: 100%; display: block; }
+        .iti__dropdown-content { z-index: 9999 !important; }
+        .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
+        @media (min-resolution: 2x) {
+          .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
+        }
+    </style>
 </head>
 <body>
     <header class="header">
@@ -101,15 +113,15 @@
                     <div id="form-contacto-feedback" style="display: none; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;"></div>
                     <div style="margin-bottom: 15px;">
                         <label for="contacto-nome" style="display: block; font-weight: 500; margin-bottom: 5px;">Nome Completo</label>
-                        <input type="text" id="contacto-nome" name="nome" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <input type="text" id="contacto-nome" name="nome" autocomplete="name" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="contacto-email" style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
-                        <input type="email" id="contacto-email" name="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <input type="email" id="contacto-email" name="email" autocomplete="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="contacto-telefone" style="display: block; font-weight: 500; margin-bottom: 5px;">Telemóvel</label>
-                        <input type="tel" id="contacto-telefone" name="telefone" style="width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <input type="tel" id="contacto-telefone" name="telefone" autocomplete="tel" style="width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                         <div id="telefone-erro" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px;">Número inválido</div>
                     </div>
                     <div style="margin-bottom: 15px;">
@@ -132,17 +144,7 @@
         </div>
     </section>
 
-    <!-- intl-tel-input -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
-    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
-    <style>
-        .iti { width: 100%; display: block; }
-        .iti__dropdown-content { z-index: 9999 !important; }
-        .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
-        @media (min-resolution: 2x) {
-          .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
-        }
-    </style>
+    
     
     <script>
         // Inicializar intl-tel-input

@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
                 if (typeof lucide !== 'undefined') lucide.createIcons();
                 document.getElementById('nav-global-logout').addEventListener('click', () => {
-                    auth.signOut().then(() => { window.location.reload(); });
+                    auth.signOut().then(() => { window.location.reload(); }).catch(err => console.error("Erro ao terminar sessão", err));
                 });
             } else {
                 // Sem sessão → Fale Connosco + Área de Cliente
@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let ticking = false;
     
     window.addEventListener('scroll', () => {
+        if (!header) return;
         const currentScroll = window.pageYOffset;
         
         if (!ticking) {

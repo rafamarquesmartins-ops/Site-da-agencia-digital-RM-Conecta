@@ -6,7 +6,12 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'conecta.rm01@gmail.com');
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'conecta.rm01@gmail.com');
+      // Admins can update anything. Users can update their own profile but cannot change sensitive fields.
+      allow update: if request.auth != null && (
+        request.auth.token.email == 'conecta.rm01@gmail.com' ||
+        (request.auth.uid == userId && 
+         (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['plano', 'status', 'disabled', 'isAdmin', 'dataCriacao', 'dataRegisto'])))
+      );
       allow delete: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
     }
     

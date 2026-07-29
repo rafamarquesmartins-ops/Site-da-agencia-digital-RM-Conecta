@@ -32,7 +32,7 @@ function initRouter() {
 
         // Se for apenas uma âncora na mesma página (ex: #formulario)
         if (url.startsWith('#')) {
-            const target = document.querySelector(url);
+            let target = null; try { target = document.querySelector(url); } catch(e) {}
             if (target) {
                 // Remove the active class from other plan cards and add to target (highlight effect)
                 document.querySelectorAll('.plan-card').forEach(c => c.style.boxShadow = '');
@@ -122,7 +122,7 @@ async function navigateTo(url, push = true) {
             }
             
             // 8. Re-inicializar componentes dinâmicos da nova página
-            reinitScripts(url);
+            reinitScripts();
             updateActiveLinks(url);
             
             // 9. Resetar scroll e estado do menu mobile
@@ -163,7 +163,7 @@ async function navigateTo(url, push = true) {
     }
 }
 
-function reinitScripts(url) {
+function reinitScripts() {
     // Recarregar os ícones (Lucide)
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();

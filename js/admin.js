@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const ADMIN_EMAIL = 'conecta.rm01@gmail.com';
     
+    let adminInitialized = false;
+    
     // Auth Check
     auth.onAuthStateChanged(user => {
         if (!user || user.email !== ADMIN_EMAIL) {
@@ -13,25 +15,40 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             document.getElementById('fullLoader').style.display = 'none';
             document.getElementById('appContent').style.display = 'block';
-            initAdmin();
+            if (!adminInitialized) {
+                adminInitialized = true;
+                initAdmin();
+            }
         }
     });
 
     // Date
-    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('pt-PT', { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-    });
+    const dateEl = document.getElementById('currentDate');
+    if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString('pt-PT', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+        });
+    }
 
     // Logout
-    document.getElementById('btnLogout').addEventListener('click', (e) => {
-        e.preventDefault();
-        auth.signOut();
-    });
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) {
+        btnLogout.addEventListener('click', (e) => {
+            e.preventDefault();
+            auth.signOut();
+        });
+    }
 
     // Mobile Sidebar Toggle
     const sidebar = document.getElementById('sidebar');
-    document.getElementById('openSidebar').addEventListener('click', () => sidebar.classList.add('open'));
-    document.getElementById('closeSidebar').addEventListener('click', () => sidebar.classList.remove('open'));
+    const openSidebarBtn = document.getElementById('openSidebar');
+    const closeSidebarBtn = document.getElementById('closeSidebar');
+    if (sidebar && openSidebarBtn) {
+        openSidebarBtn.addEventListener('click', () => sidebar.classList.add('open'));
+    }
+    if (sidebar && closeSidebarBtn) {
+        closeSidebarBtn.addEventListener('click', () => sidebar.classList.remove('open'));
+    }
 
     // Navigation
     document.querySelectorAll('.nav-links a[data-target]').forEach(link => {
@@ -167,7 +184,7 @@ function renderRecentLeads() {
     if (!tbody) return;
     tbody.innerHTML = '';
     const toShow = dashboardLeadsLimit === Infinity ? recentLeadsData : recentLeadsData.slice(0, dashboardLeadsLimit);
-    
+    let html = '';
     toShow.forEach(lead => {
         const dateField = lead.dataEnvio || lead.dataCriacao;
         const dateObj = dateField ? new Date(dateField.toDate()) : null;
@@ -184,7 +201,7 @@ function renderRecentLeads() {
             origemHtml += `<div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; line-height: 1.4;">${detalhes.join('<br>')}</div>`;
         }
 
-        tbody.innerHTML += `
+        html += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
@@ -199,6 +216,7 @@ function renderRecentLeads() {
             </tr>
         `;
     });
+    tbody.innerHTML = html;
 }
 
 let currentCrmTab = 'ativos';
@@ -316,7 +334,7 @@ function renderCRMTable() {
                 <td>${date}</td>
                 <td>
                     ${btnVerConta}
-                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', \`${(lead.mensagem || 'Sem mensagem').replace(/`/g, "'")}\`)" title="Ver Mensagem">
+                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${encodeURIComponent(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
                         <i data-lucide="eye"></i>
                     </button>
                     <button class="btn-icon" onclick="deleteLead('${lead.id}')" title="Excluir Lead">
@@ -358,7 +376,7 @@ function renderCRMTable() {
                 <td>${dateReg}</td>
                 <td>${dateExcl}</td>
                 <td>
-                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', \`${(lead.mensagem || 'Sem mensagem').replace(/`/g, "'")}\`)" title="Ver Mensagem">
+                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${encodeURIComponent(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
                         <i data-lucide="eye"></i>
                     </button>
                     <button class="btn-icon" onclick="restaurarLead('${lead.id}')" title="Restaurar Lead">
@@ -652,10 +670,11 @@ function loadPortfolio() {
     db.collection('projetos').orderBy('ordem', 'asc').onSnapshot(snap => {
         const grid = document.getElementById('portfolioGrid');
         grid.innerHTML = '';
+        let htmlGrid = '';
         snap.forEach(doc => {
             const p = doc.data();
             const imgUrl = p.imagemUrl || p.imagem;
-            grid.innerHTML += `
+            htmlGrid += `
                 <div class="item-card">
                     <img src="${imgUrl}" alt="${p.nome}">
                     <div class="item-card-body">
@@ -670,6 +689,7 @@ function loadPortfolio() {
                 </div>
             `;
         });
+        grid.innerHTML = htmlGrid;
         lucide.createIcons();
     });
 }
@@ -731,10 +751,11 @@ function loadRecursos() {
     db.collection('recursos').onSnapshot(snap => {
         const grid = document.getElementById('recursosGrid');
         grid.innerHTML = '';
+        let htmlGrid = '';
         snap.forEach(doc => {
             const r = doc.data();
             const nivel = r.nivelMinimo || r.nivel || 'N/A';
-            grid.innerHTML += `
+            htmlGrid += `
                 <div class="item-card">
                     <div class="item-card-body">
                         <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:8px;">
@@ -753,6 +774,7 @@ function loadRecursos() {
                 </div>
             `;
         });
+        grid.innerHTML = htmlGrid;
         lucide.createIcons();
     });
 }
