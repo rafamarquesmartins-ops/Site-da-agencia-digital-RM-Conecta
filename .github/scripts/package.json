@@ -1,0 +1,9 @@
+{
+  "name": "rm-conecta-backups",
+  "version": "1.0.0",
+  "description": "Script para exportar dados do Firestore para ficheiros locais.",
+  "main": "backup.js",
+  "dependencies": {
+    "firebase-admin": "^12.1.0"
+  }
+}

@@ -1,0 +1,39 @@
+name: Daily Firebase Backup
+
+on:
+  schedule:
+    # Corre todos os dias às 03:00 UTC (03:00 Lisboa)
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Permite correr o backup manualmente no separador "Actions"
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        working-directory: ./.github/scripts
+        run: npm install
+
+      - name: Run Backup Script
+        working-directory: ./.github/scripts
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node backup.js
+
+      - name: Upload Backup as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # O nome do artefato inclui a data para ser fácil de identificar
+          name: firebase-backup-${{ github.run_id }}
+          path: backups/
+          # O GitHub vai apagar este backup automaticamente passados 90 dias
+          retention-days: 90
