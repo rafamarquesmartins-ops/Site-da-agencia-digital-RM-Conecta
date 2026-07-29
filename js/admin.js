@@ -99,10 +99,19 @@ function showToast(message, type = 'success') {
 }
 
 // Global data references for filters
-let allLeads = [];
+let crmLastVisible = null;
+let crmCurrentFilter = '';
+let crmLeadsData = { ativos: [], excluidos: [] };
 let recentLeadsData = [];
 let dashboardLeadsLimit = Infinity;
 let currentUsersTab = 'ativos';
+// CRM Pagination Globals
+let crmLastVisible = null;
+let crmCurrentFilter = '';
+let crmIsDeletedTab = false;
+let crmLeadsData = { ativos: [], excluidos: [] };
+let crmPageSize = 20;
+
 let usersUnsubscribe = null;
 let deletedUsersUnsubscribe = null;
 
@@ -149,31 +158,43 @@ async function loadDashboardStats() {
         });
 
         // Leads (Total & Novos)
-        db.collection('leads').onSnapshot(snap => {
-            let totalAtivos = 0;
-            let novos = 0;
-            recentLeadsData = [];
-            snap.forEach(doc => {
-                const data = doc.data();
-                if (data.isDeleted) return; // Ignora leads excluídas no dashboard
-                
-                totalAtivos++;
-                const estado = (data.estado || 'novo').toLowerCase();
-                if(estado === 'novo' || estado === 'por contactar') novos++;
-                recentLeadsData.push({ id: doc.id, ...data });
-            });
+        try {
+            // Conta total de ativos (Total - Excluídos para evitar index composto)
+            const totalSnap = await db.collection('leads').count().get();
+            const deletedSnap = await db.collection('leads').where('isDeleted', '==', true).count().get();
+            const totalAtivos = totalSnap.data().count - deletedSnap.data().count;
+            
+            // Conta novos
+            const novosSnap1 = await db.collection('leads').where('estado', '==', 'Por Contactar').count().get();
+            const novosSnap2 = await db.collection('leads').where('estado', '==', 'Novo').count().get();
+            const novosSnap3 = await db.collection('leads').where('estado', '==', 'novo').count().get();
+            const novosSnap4 = await db.collection('leads').where('estado', '==', 'por contactar').count().get();
+            const totalNovos = novosSnap1.data().count + novosSnap2.data().count + novosSnap3.data().count + novosSnap4.data().count;
+            
             document.getElementById('statTotalLeads').textContent = totalAtivos;
-            document.getElementById('statNovosLeads').textContent = novos;
-            
-            // Sort by date desc
-            recentLeadsData.sort((a, b) => {
-                const tA = (a.dataEnvio || a.dataCriacao) ? (a.dataEnvio || a.dataCriacao).toMillis() : 0;
-                const tB = (b.dataEnvio || b.dataCriacao) ? (b.dataEnvio || b.dataCriacao).toMillis() : 0;
-                return tB - tA;
+            document.getElementById('statNovosLeads').textContent = totalNovos;
+
+            // Fetch recent 20 leads for the table
+            db.collection('leads').orderBy('dataEnvio', 'desc').limit(20).onSnapshot(snap => {
+                recentLeadsData = [];
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.isDeleted) {
+                        recentLeadsData.push({ id: doc.id, ...data });
+                    }
+                });
+                renderRecentLeads();
             });
-            
-            renderRecentLeads();
-        });
+
+        } catch (e) {
+            console.error('Error with aggregate queries, fallback to old method: ', e);
+            // fallback if count() fails (e.g. old SDK cached)
+            db.collection('leads').orderBy('dataEnvio', 'desc').limit(50).onSnapshot(snap => {
+                recentLeadsData = [];
+                snap.forEach(doc => recentLeadsData.push({id: doc.id, ...doc.data()}));
+                renderRecentLeads();
+            });
+        }
     } catch (err) {
         console.error("Error loading stats:", err);
     }
@@ -235,81 +256,110 @@ function switchCrmTab(tab) {
     document.getElementById('tab-crm-excluidos').style.borderColor = tab === 'excluidos' ? 'var(--primary)' : '';
     document.getElementById('tab-crm-excluidos').style.color = tab === 'excluidos' ? 'var(--primary)' : '';
     
-    renderCRMTable();
+    crmLastVisible = null;
+    crmLeadsData = { ativos: [], excluidos: [] };
+    fetchCRMData();
 }
 
-// 2. CRM Module
-function loadCRM() {
-    db.collection('leads').onSnapshot(snap => {
-        allLeads = [];
-        snap.forEach(doc => allLeads.push({ id: doc.id, ...doc.data() }));
+async function fetchCRMData(isLoadMore = false) {
+    const filter = document.getElementById('filterEstado').value;
+    crmCurrentFilter = filter;
+    const btn = document.getElementById('btnLoadMoreCrm');
+    if(btn) btn.style.display = 'none';
+    const isExcluidoTab = (currentCrmTab === 'excluidos');
+
+    let query = db.collection('leads')
+        .where('isDeleted', '==', isExcluidoTab)
+        .orderBy('dataEnvio', 'desc');
+
+    if (crmLastVisible && isLoadMore) {
+        query = query.startAfter(crmLastVisible);
+    }
+    
+    query = query.limit(50);
+
+    try {
+        const snap = await query.get();
+        if (snap.empty) {
+            if(btn) btn.style.display = 'none';
+            if(!isLoadMore) renderCRMTable(true);
+            return;
+        }
+
+        crmLastVisible = snap.docs[snap.docs.length - 1];
         
-        // Sort by date desc client-side
-        allLeads.sort((a, b) => {
-            const tA = (a.dataEnvio || a.dataCriacao) ? (a.dataEnvio || a.dataCriacao).toMillis() : 0;
-            const tB = (b.dataEnvio || b.dataCriacao) ? (b.dataEnvio || b.dataCriacao).toMillis() : 0;
-            return tB - tA;
+        snap.forEach(doc => {
+            const data = doc.data();
+            const lEstado = (data.estado || 'por contactar').toLowerCase();
+            const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
+            
+            let matchesFilter = true;
+            if (crmCurrentFilter && normalizedState !== crmCurrentFilter.toLowerCase()) {
+                matchesFilter = false;
+            }
+
+            if (matchesFilter) {
+                if(isExcluidoTab) {
+                    crmLeadsData.excluidos.push({ id: doc.id, ...data });
+                } else {
+                    crmLeadsData.ativos.push({ id: doc.id, ...data });
+                }
+            }
         });
 
         renderCRMTable();
-    }, err => console.error("Error loading leads:", err));
+        
+        if(snap.docs.length === 50 && btn) {
+            btn.style.display = 'block';
+            btn.onclick = () => fetchCRMData(true);
+        }
+    } catch(e) {
+        console.error("Error fetching CRM", e);
+    }
 }
 
-function renderCRMTable() {
-    const filter = document.getElementById('filterEstado').value;
-    const tbodyAtivos = document.getElementById('crmTable');
-    const tbodyExcluidos = document.getElementById('deletedCrmTable');
-    tbodyAtivos.innerHTML = '';
-    tbodyExcluidos.innerHTML = '';
-    
-    let filteredAtivos = allLeads.filter(l => !l.isDeleted);
-    let filteredExcluidos = allLeads.filter(l => l.isDeleted);
-    
-    if(filter) {
-        filteredAtivos = filteredAtivos.filter(l => {
-            const lEstado = (l.estado || 'por contactar').toLowerCase();
-            const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
-            return normalizedState === filter.toLowerCase();
-        });
-        filteredExcluidos = filteredExcluidos.filter(l => {
-            const lEstado = (l.estado || 'por contactar').toLowerCase();
-            const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
-            return normalizedState === filter.toLowerCase();
+function loadCRM() {
+    const filterEl = document.getElementById('filterEstado');
+    if(filterEl) {
+        const newEl = filterEl.cloneNode(true);
+        filterEl.parentNode.replaceChild(newEl, filterEl);
+        newEl.addEventListener('change', () => {
+            crmLastVisible = null;
+            crmLeadsData = { ativos: [], excluidos: [] };
+            fetchCRMData();
         });
     }
-    
-    filteredAtivos.forEach(lead => {
-        const dateField = lead.dataEnvio || lead.dataCriacao;
-        const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
-        const estadoOriginal = lead.estado || 'Novo';
-        let estadoNormalized = estadoOriginal;
-        if(estadoOriginal.toLowerCase() === 'novo') estadoNormalized = 'Por Contactar';
-        
-        let btnVerConta = `
-            <button class="btn-icon" onclick="showAdminAlert('Informação da Conta', 'Este utilizador não tem conta criada.')" title="Sem Registo" style="opacity: 0.5;">
-                <i data-lucide="user"></i>
-            </button>`;
-            
-        if (lead.email && window.adminUsersByEmail && window.adminUsersByEmail[lead.email.trim().toLowerCase()]) {
-            const u = window.adminUsersByEmail[lead.email.trim().toLowerCase()];
-            const plano = u.plano || 'Sem Plano';
-            const dateField = u.dataRegisto || u.dataCriacao;
-            const uDate = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
-            const alertText = `Utilizador: ${u.nome || 'N/A'}<br>Plano Atual: ${plano}<br>Membro desde: ${uDate}`;
-            btnVerConta = `
-                <button class="btn-icon" data-info="${encodeURIComponent(alertText)}" onclick="showAdminAlert('Informação da Conta', decodeURIComponent(this.dataset.info))" title="Ver Conta">
-                    <i data-lucide="user" style="color: var(--success)"></i>
-                </button>`;
-        }
-        
-        let dispositivoIcon = '';
-        if (lead.dispositivo === 'Telemóvel') {
-            dispositivoIcon = '<i data-lucide="smartphone" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Telemóvel"></i>';
-        } else if (lead.dispositivo === 'Computador') {
-            dispositivoIcon = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
-        }
 
-        let origemHtml = `<strong>${lead.origem || 'Site'}</strong>`;
+    crmLastVisible = null;
+    crmLeadsData = { ativos: [], excluidos: [] };
+    fetchCRMData();
+}
+
+function renderCRMTable(empty = false) {
+    const tbodyAtivos = document.getElementById('crmTable');
+    const tbodyExcluidos = document.getElementById('deletedCrmTable');
+    let htmlAtivos = '';
+    let htmlExcluidos = '';
+    const isExcluidoTab = (currentCrmTab === 'excluidos');
+
+    if (empty && !isExcluidoTab) htmlAtivos = '<tr><td colspan="7" style="text-align:center;">Sem resultados</td></tr>';
+    if (empty && isExcluidoTab) htmlExcluidos = '<tr><td colspan="7" style="text-align:center;">Sem resultados</td></tr>';
+
+    const leadsToRender = isExcluidoTab ? crmLeadsData.excluidos : crmLeadsData.ativos;
+
+    leadsToRender.forEach(lead => {
+        const dateFieldReg = lead.dataEnvio || lead.dataCriacao;
+        const dateReg = dateFieldReg ? new Date(dateFieldReg.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const dateFieldExcl = lead.dataExclusao;
+        const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        
+        const dateObj = dateFieldReg ? new Date(dateFieldReg.toDate()) : null;
+        const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; display:block;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
+        
+        const estadoRaw = lead.estado || 'por contactar';
+        const estadoNormalized = estadoRaw.toLowerCase() === 'novo' ? 'Por Contactar' : estadoRaw.charAt(0).toUpperCase() + estadoRaw.slice(1).toLowerCase();
+
+        let origemHtml = `<strong>${lead.origem || 'Website'}</strong>`;
         let detalhes = [];
         if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
         if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
@@ -318,7 +368,22 @@ function renderCRMTable() {
             origemHtml += `<div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; line-height: 1.4;">${detalhes.join('<br>')}</div>`;
         }
 
-        tbodyAtivos.innerHTML += `
+        let dispositivoIcon = '';
+        if (lead.dispositivo === 'Telemóvel') {
+            dispositivoIcon = '<i data-lucide="smartphone" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Telemóvel"></i>';
+        } else if (lead.dispositivo === 'Computador') {
+            dispositivoIcon = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
+        }
+
+        if (!isExcluidoTab) {
+            let btnVerConta = '';
+            if (lead.userId) {
+                btnVerConta = `<button class="btn-icon" onclick="window.open('area-cliente.html?uid=${lead.userId}', '_blank')" title="Ver Conta do Cliente">
+                    <i data-lucide="user" style="color: var(--success)"></i>
+                </button>`;
+            }
+
+            htmlAtivos += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
@@ -341,40 +406,16 @@ function renderCRMTable() {
                         <i data-lucide="trash-2" style="color: var(--danger)"></i>
                     </button>
                 </td>
-            </tr>
-        `;
-    });
-
-    filteredExcluidos.forEach(lead => {
-        const dateFieldReg = lead.dataEnvio || lead.dataCriacao;
-        const dateReg = dateFieldReg ? new Date(dateFieldReg.toDate()).toLocaleDateString('pt-PT') : 'N/A';
-        const dateFieldExcl = lead.dataExclusao;
-        const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
-        
-        let dispositivoIconEx = '';
-        if (lead.dispositivo === 'Telemóvel') {
-            dispositivoIconEx = '<i data-lucide="smartphone" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Telemóvel"></i>';
-        } else if (lead.dispositivo === 'Computador') {
-            dispositivoIconEx = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
-        }
-
-        let origemHtml = `<strong>${lead.origem || 'Site'}</strong>`;
-        let detalhes = [];
-        if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
-        if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
-        if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
-        if (detalhes.length > 0) {
-            origemHtml += `<div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; line-height: 1.4;">${detalhes.join('<br>')}</div>`;
-        }
-
-        tbodyExcluidos.innerHTML += `
+            </tr>`;
+        } else {
+            htmlExcluidos += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td><span style="display:block;">${origemHtml}</span>${dispositivoIconEx}</td>
+                <td><span style="display:block;">${origemHtml}</span>${dispositivoIcon}</td>
                 <td>${dateReg}</td>
-                <td>${dateExcl}</td>
+                <td><span style="color: var(--danger)">${dateExcl}</span></td>
                 <td>
                     <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${encodeURIComponent(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
                         <i data-lucide="eye"></i>
@@ -386,9 +427,12 @@ function renderCRMTable() {
                         <i data-lucide="x-circle" style="color: var(--danger)"></i>
                     </button>
                 </td>
-            </tr>
-        `;
+            </tr>`;
+        }
     });
+
+    if(!isExcluidoTab) tbodyAtivos.innerHTML = htmlAtivos;
+    if(isExcluidoTab) tbodyExcluidos.innerHTML = htmlExcluidos;
     lucide.createIcons();
 }
 
