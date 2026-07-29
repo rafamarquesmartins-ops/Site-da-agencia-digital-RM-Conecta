@@ -133,15 +133,19 @@ async function loadDashboardStats() {
 
         // Leads (Total & Novos)
         db.collection('leads').onSnapshot(snap => {
-            document.getElementById('statTotalLeads').textContent = snap.size;
+            let totalAtivos = 0;
             let novos = 0;
             recentLeadsData = [];
             snap.forEach(doc => {
                 const data = doc.data();
+                if (data.isDeleted) return; // Ignora leads excluídas no dashboard
+                
+                totalAtivos++;
                 const estado = (data.estado || 'novo').toLowerCase();
-                if(estado === 'novo') novos++;
+                if(estado === 'novo' || estado === 'por contactar') novos++;
                 recentLeadsData.push({ id: doc.id, ...data });
             });
+            document.getElementById('statTotalLeads').textContent = totalAtivos;
             document.getElementById('statNovosLeads').textContent = novos;
             
             // Sort by date desc
@@ -171,14 +175,13 @@ function renderRecentLeads() {
         const estadoRaw = lead.estado || 'por contactar';
         const estadoNormalized = estadoRaw.toLowerCase() === 'novo' ? 'Por Contactar' : estadoRaw.charAt(0).toUpperCase() + estadoRaw.slice(1).toLowerCase();
         
-        let origemHtml = lead.origem || 'Website';
+        let origemHtml = `<strong>${lead.origem || 'Website'}</strong>`;
         let detalhes = [];
         if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
         if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
         if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
         if (detalhes.length > 0) {
-            const detalheText = detalhes.join('<br>').replace(/'/g, "&apos;");
-            origemHtml += `<br><span class="badge" style="background: var(--primary-light); color: var(--primary); font-size: 0.75rem; cursor: pointer; margin-top: 5px; display: inline-block;" onclick="showAdminAlert('Detalhes do Pedido', '${detalheText}')">+ Detalhes</span>`;
+            origemHtml += `<div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; line-height: 1.4;">${detalhes.join('<br>')}</div>`;
         }
 
         tbody.innerHTML += `
@@ -269,8 +272,8 @@ function renderCRMTable() {
                 <i data-lucide="user"></i>
             </button>`;
             
-        if (lead.email && window.adminUsersByEmail && window.adminUsersByEmail[lead.email.toLowerCase()]) {
-            const u = window.adminUsersByEmail[lead.email.toLowerCase()];
+        if (lead.email && window.adminUsersByEmail && window.adminUsersByEmail[lead.email.trim().toLowerCase()]) {
+            const u = window.adminUsersByEmail[lead.email.trim().toLowerCase()];
             const plano = u.plano || 'Sem Plano';
             const dateField = u.dataRegisto || u.dataCriacao;
             const uDate = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
@@ -288,12 +291,21 @@ function renderCRMTable() {
             dispositivoIcon = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
         }
 
+        let origemHtml = `<strong>${lead.origem || 'Site'}</strong>`;
+        let detalhes = [];
+        if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
+        if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
+        if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
+        if (detalhes.length > 0) {
+            origemHtml += `<div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; line-height: 1.4;">${detalhes.join('<br>')}</div>`;
+        }
+
         tbodyAtivos.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td><span class="badge badge-primary" style="display:inline-flex;align-items:center;">${lead.origem || 'Site'} ${dispositivoIcon}</span></td>
+                <td><span style="display:block;">${origemHtml}</span>${dispositivoIcon}</td>
                 <td>
                     <select class="form-control" style="width: auto; padding: 4px;" onchange="updateLeadEstado('${lead.id}', this.value)">
                         <option value="Por Contactar" ${estadoNormalized === 'Por Contactar' ? 'selected' : ''}>Por Contactar</option>
@@ -328,12 +340,21 @@ function renderCRMTable() {
             dispositivoIconEx = '<i data-lucide="monitor" style="width: 14px; height: 14px; margin-left: 5px;" title="Submetido via Computador"></i>';
         }
 
+        let origemHtml = `<strong>${lead.origem || 'Site'}</strong>`;
+        let detalhes = [];
+        if (lead.plano_interesse) detalhes.push(`Plano: ${lead.plano_interesse}`);
+        if (lead.tipo_negocio) detalhes.push(`Negócio: ${lead.tipo_negocio}`);
+        if (lead.apoio_prr) detalhes.push(`PRR: ${lead.apoio_prr}`);
+        if (detalhes.length > 0) {
+            origemHtml += `<div style="font-size: 0.8rem; color: #64748b; margin-top: 4px; line-height: 1.4;">${detalhes.join('<br>')}</div>`;
+        }
+
         tbodyExcluidos.innerHTML += `
             <tr>
                 <td>${lead.nome || 'N/A'}</td>
                 <td>${lead.email || 'N/A'}</td>
                 <td>${lead.telefone || 'N/A'}</td>
-                <td><span class="badge badge-primary" style="display:inline-flex;align-items:center;">${lead.origem || 'Site'} ${dispositivoIconEx}</span></td>
+                <td><span style="display:block;">${origemHtml}</span>${dispositivoIconEx}</td>
                 <td>${dateReg}</td>
                 <td>${dateExcl}</td>
                 <td>
