@@ -95,6 +95,10 @@ function initAdmin() {
     loadUsers();
     loadPortfolio();
     loadRecursos();
+    const savedCrmTab = localStorage.getItem('crmSubTab');
+    if (savedCrmTab) switchCrmTab(savedCrmTab);
+    const savedUsersTab = localStorage.getItem('usersSubTab');
+    if (savedUsersTab) switchUsersTab(savedUsersTab);
     
     // CRM Filter
     document.getElementById('filterEstado').addEventListener('change', renderCRMTable);
@@ -108,25 +112,9 @@ function initAdmin() {
 async function loadDashboardStats() {
     try {
         // Dropdown limit
-        if (!document.getElementById('dashboardLeadsLimitContainer')) {
-            const container = document.createElement('div');
-            container.id = 'dashboardLeadsLimitContainer';
-            container.style.marginBottom = '15px';
-            container.innerHTML = `
-                <label for="dashboardLeadsLimit" style="margin-right: 10px; font-weight: 500;">Mostrar Leads:</label>
-                <select id="dashboardLeadsLimit" class="form-control" style="width: auto; display: inline-block;">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="Todos" selected>Todos</option>
-                </select>
-            `;
-            const table = document.getElementById('recentLeadsTable').closest('table');
-            if (table) {
-                table.parentNode.insertBefore(container, table);
-            }
-            
-            document.getElementById('dashboardLeadsLimit').addEventListener('change', (e) => {
+        const limitDropdown = document.getElementById('dashboardLeadsLimit');
+        if (limitDropdown) {
+            limitDropdown.addEventListener('change', (e) => {
                 const val = parseInt(e.target.value);
                 dashboardLeadsLimit = val === 0 || isNaN(val) ? Infinity : val;
                 renderRecentLeads();
@@ -214,6 +202,7 @@ let currentCrmTab = 'ativos';
 
 function switchCrmTab(tab) {
     currentCrmTab = tab;
+    localStorage.setItem('crmSubTab', tab);
     document.getElementById('crm-ativos').style.display = tab === 'ativos' ? 'block' : 'none';
     document.getElementById('crm-excluidos').style.display = tab === 'excluidos' ? 'block' : 'none';
     
@@ -410,6 +399,7 @@ async function deleteLeadPermanently(id) {
 
 // 3. Utilizadores Module
 function switchUsersTab(tab) {
+    localStorage.setItem('usersSubTab', tab);
     document.getElementById('users-ativos').style.display = tab === 'ativos' ? 'block' : 'none';
     document.getElementById('users-suspensos').style.display = tab === 'suspensos' ? 'block' : 'none';
     document.getElementById('users-excluidos').style.display = tab === 'excluidos' ? 'block' : 'none';

@@ -7,19 +7,28 @@
     <meta name="description" content="Aceda à sua área reservada de cliente RM Conecta. Guias práticos, recursos exclusivos e gestão do seu perfil.">
     <meta property="og:title" content="Área de Cliente | RM Conecta">
     <meta property="og:description" content="Aceda à sua área reservada de cliente RM Conecta. Guias práticos, recursos exclusivos e gestão do seu perfil.">
-    <meta property="og:url" content="https://rmconecta.netlify.app/area-cliente">
+    <meta property="og:url" content="https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/area-cliente">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="https://rmconecta.netlify.app/images/hero_business_owner_1784624346442.jpg">
+    <meta property="og:image" content="https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/images/hero_business_owner_1784624346442.jpg">
     <meta property="og:locale" content="pt_PT">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Área de Cliente | RM Conecta">
     <meta name="twitter:description" content="Aceda à sua área reservada de cliente RM Conecta. Guias práticos, recursos exclusivos e gestão do seu perfil.">
-    <meta name="twitter:image" content="https://rmconecta.netlify.app/images/hero_business_owner_1784624346442.jpg">
-    <link rel="canonical" href="https://rmconecta.netlify.app/area-cliente">
+    <meta name="twitter:image" content="https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/images/hero_business_owner_1784624346442.jpg">
+    <link rel="canonical" href="https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/area-cliente">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
+    <style>
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <div id="auth-loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:9999;display:flex;align-items:center;justify-content:center;">
+        <div style="text-align:center;">
+            <div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#1e3a8a;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 15px;"></div>
+            <p style="color:#475569;font-size:0.9rem;">A verificar sessão...</p>
+        </div>
+    </div>
     <header class="header">
         <div class="container navbar">
             <a href="index.html" class="logo">RM <span>Conecta</span></a>
@@ -492,15 +501,12 @@
                 
                 const keepLogged = document.getElementById('keep-logged-register').checked;
                 const name = document.getElementById('register-name').value;
-                const email = document.getElementById('form-register-submit').querySelector('input[type="email"]').value;
-                const password = document.getElementById('form-register-submit').querySelector('input[type="password"]').value;
-
-                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A validar...';
-                btn.disabled = true;
-
-
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
 
                 btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A criar...';
+                btn.disabled = true;
+
                 handleRegister(email, password, name, keepLogged, btn, originalText);
             });
 
@@ -511,14 +517,11 @@
 
                 const keepLogged = document.getElementById('keep-logged-login').checked;
                 const email = document.getElementById('login-email').value;
-                const password = document.getElementById('form-login-submit').querySelector('input[type="password"]').value;
-
-                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A validar...';
-                btn.disabled = true;
-
-
+                const password = document.getElementById('login-password').value;
 
                 btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A entrar...';
+                btn.disabled = true;
+
                 handleLogin(email, password, keepLogged, btn, originalText);
             });
 
@@ -615,21 +618,6 @@
                 // Mostrar formulário Registo
                 formRegister.style.display = 'block';
                 formLogin.style.display = 'none';
-            });
-            document.querySelectorAll('.toggle-password').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const input = this.previousElementSibling;
-                    const icon = this.querySelector('i');
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.setAttribute('data-lucide', 'eye-off');
-                    } else {
-                        input.type = 'password';
-                        icon.setAttribute('data-lucide', 'eye');
-                    }
-                    lucide.createIcons();
-                });
-            });
         });
     </script>
     <script src="js/router.js"></script>
