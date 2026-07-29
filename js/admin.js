@@ -436,7 +436,7 @@ function loadUsersData() {
         
         snap.forEach(doc => {
             const user = doc.data();
-            if (user.email) window.adminUsersByEmail[user.email.toLowerCase()] = { id: doc.id, ...user };
+            if (user.email) window.adminUsersByEmail[user.email.trim().toLowerCase()] = { id: doc.id, ...user };
             const dateField = user.dataRegisto || user.dataCriacao;
             const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
             const plano = user.plano || 'Sem Plano';
@@ -485,6 +485,8 @@ function loadUsersData() {
             }
         });
         lucide.createIcons();
+        if (typeof renderRecentLeads === 'function') renderRecentLeads();
+        if (typeof renderCRMTable === 'function') renderCRMTable();
     });
 
     deletedUsersUnsubscribe = db.collection('users_deleted').onSnapshot(snap => {

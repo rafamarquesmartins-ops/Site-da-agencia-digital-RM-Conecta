@@ -200,6 +200,7 @@
                             <div>
                                 <label for="maq-telefone" style="display: block; font-weight: 500; margin-bottom: 5px;">Telefone / WhatsApp</label>
                                 <input type="tel" id="maq-telefone" name="telefone" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                                <div id="maq-telefone-erro" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px;">Número inválido</div>
                             </div>
                         </div>
                         <div style="margin-bottom: var(--spacing-md);">
@@ -248,12 +249,34 @@
         </div>
     </section>
 
-    <!-- Footer -->
-        
+
+    <!-- intl-tel-input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
+    <style>
+        .iti { width: 100%; }
+        .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
+        @media (min-resolution: 2x) {
+          .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
+        }
+    </style>
+
 <script>
 
         const formMaquete = document.getElementById('form-maquete');
         if (formMaquete) {
+            // Inicializar intl-tel-input
+            const inputTelMaq = document.querySelector("#maq-telefone");
+            const errorMsgMaq = document.querySelector("#maq-telefone-erro");
+            
+            const itiMaq = window.intlTelInput(inputTelMaq, {
+                utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/utils.js",
+                initialCountry: "pt",
+                preferredCountries: ["pt", "br", "ao", "mz", "cv"],
+                formatOnDisplay: true,
+                nationalMode: false
+            });
+
             // Visual feedback para campos inválidos
             const submitBtn = formMaquete.querySelector('button[type="submit"]');
             submitBtn.addEventListener('click', () => {
@@ -281,8 +304,19 @@
 
             formMaquete.addEventListener('submit', (e) => {
                 e.preventDefault();
+                
+                // Validar telefone primeiro
+                if (!itiMaq.isValidNumber()) {
+                    errorMsgMaq.style.display = "block";
+                    inputTelMaq.style.borderColor = "#ef4444";
+                    return;
+                }
+                errorMsgMaq.style.display = "none";
+                inputTelMaq.style.borderColor = "#cbd5e1";
+
                 const btn = e.target.querySelector('button[type="submit"]');
                 const feedback = document.getElementById('form-maquete-feedback');
+                
                 const originalText = btn.innerHTML;
                 btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px;"><svg style="animation:spin 1s linear infinite;width:20px;height:20px;" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-dashoffset="8"></circle></svg> A enviar...</span>';
                 btn.disabled = true;
@@ -294,7 +328,7 @@
                     nome: document.getElementById('maq-nome').value,
                     negocio: document.getElementById('maq-negocio').value,
                     email: document.getElementById('maq-email').value,
-                    telefone: document.getElementById('maq-telefone').value,
+                    telefone: itiMaq.getNumber(),
                     localizacao: document.getElementById('maq-localizacao').value,
                     tipo_negocio: document.getElementById('maq-tipo').value,
                     plano_interesse: document.getElementById('maq-plano').value,
@@ -311,6 +345,7 @@
                     feedback.style.borderLeft = '4px solid #22c55e';
                     feedback.innerHTML = '<strong>✅ Pedido enviado com sucesso!</strong> A nossa equipa vai preparar a sua maquete e contactá-lo em breve.';
                     e.target.reset();
+                    itiMaq.setNumber("");
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     btn.style.opacity = '1';

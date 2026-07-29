@@ -108,6 +108,11 @@
                         <input type="email" id="contacto-email" name="email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                     </div>
                     <div style="margin-bottom: 15px;">
+                        <label for="contacto-telefone" style="display: block; font-weight: 500; margin-bottom: 5px;">Telemóvel</label>
+                        <input type="tel" id="contacto-telefone" name="telefone" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <div id="telefone-erro" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px;">Número inválido</div>
+                    </div>
+                    <div style="margin-bottom: 15px;">
                         <label for="contacto-assunto" style="display: block; font-weight: 500; margin-bottom: 5px;">Assunto</label>
                         <select id="contacto-assunto" name="assunto" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;" required>
                             <option value="">Selecione...</option>
@@ -126,11 +131,44 @@
             </div>
         </div>
     </section>
-</main>
 
-<script>
+    <!-- intl-tel-input -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
+    <style>
+        .iti { width: 100%; }
+        .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
+        @media (min-resolution: 2x) {
+          .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
+        }
+    </style>
+    
+    <script>
+        // Inicializar intl-tel-input
+        const inputTel = document.querySelector("#contacto-telefone");
+        const errorMsg = document.querySelector("#telefone-erro");
+        
+        const iti = window.intlTelInput(inputTel, {
+            utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/utils.js",
+            initialCountry: "pt",
+            preferredCountries: ["pt", "br", "ao", "mz", "cv"],
+            formatOnDisplay: true,
+            nationalMode: false
+        });
+
+        // Validação no submit
         document.getElementById('form-contacto').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // Validar telefone primeiro
+            if (!iti.isValidNumber()) {
+                errorMsg.style.display = "block";
+                inputTel.style.borderColor = "#ef4444";
+                return;
+            }
+            errorMsg.style.display = "none";
+            inputTel.style.borderColor = "#cbd5e1";
+
             const btn = e.target.querySelector('button[type="submit"]');
             const feedback = document.getElementById('form-contacto-feedback');
             const originalText = btn.innerHTML;
@@ -142,6 +180,7 @@
             db.collection('leads').add({
                 nome: document.getElementById('contacto-nome').value,
                 email: document.getElementById('contacto-email').value,
+                telefone: iti.getNumber(), // Guarda o número completo com indicativo
                 assunto: document.getElementById('contacto-assunto').value,
                 mensagem: document.getElementById('contacto-mensagem').value,
                 origem: 'contactos',
@@ -155,6 +194,7 @@
                 feedback.style.borderLeft = '4px solid #22c55e';
                 feedback.innerHTML = '<strong>Mensagem enviada com sucesso!</strong> Entraremos em contacto em breve.';
                 e.target.reset();
+                iti.setNumber(""); // Reset telefone
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }).catch((err) => {
@@ -167,7 +207,8 @@
                 btn.disabled = false;
             });
         });
-</script>
+    </script>
+</main>
 
 <footer class="footer">
         <div class="container">

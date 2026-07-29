@@ -22,7 +22,11 @@ function initRouter() {
         if (!url || url.startsWith('http') || url.startsWith('mailto') || url.startsWith('tel')) return;
         
         // Ignora a Área de Cliente e o Admin (segurança e Firebase integrity)
-        if (url.includes('area-cliente') || url.includes('admin')) return;
+        // Tanto como destino (url) como origem (página atual)
+        if (url.includes('area-cliente') || url.includes('admin') || 
+            window.location.pathname.includes('area-cliente') || window.location.pathname.includes('admin')) {
+            return;
+        }
 
         e.preventDefault();
 
