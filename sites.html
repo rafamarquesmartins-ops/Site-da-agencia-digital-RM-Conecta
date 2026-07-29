@@ -199,7 +199,7 @@
                             </div>
                             <div>
                                 <label for="maq-telefone" style="display: block; font-weight: 500; margin-bottom: 5px;">Telefone / WhatsApp</label>
-                                <input type="tel" id="maq-telefone" name="telefone" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                                <input type="tel" id="maq-telefone" name="telefone" style="width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                                 <div id="maq-telefone-erro" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px;">Número inválido</div>
                             </div>
                         </div>
@@ -254,7 +254,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
     <style>
-        .iti { width: 100%; }
+        .iti { width: 100%; display: block; }
+        .iti__dropdown-content { z-index: 9999 !important; }
         .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
         @media (min-resolution: 2x) {
           .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}

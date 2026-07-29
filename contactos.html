@@ -109,7 +109,7 @@
                     </div>
                     <div style="margin-bottom: 15px;">
                         <label for="contacto-telefone" style="display: block; font-weight: 500; margin-bottom: 5px;">Telemóvel</label>
-                        <input type="tel" id="contacto-telefone" name="telefone" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <input type="tel" id="contacto-telefone" name="telefone" style="width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
                         <div id="telefone-erro" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px;">Número inválido</div>
                     </div>
                     <div style="margin-bottom: 15px;">
@@ -136,7 +136,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/css/intlTelInput.css">
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/js/intlTelInput.min.js"></script>
     <style>
-        .iti { width: 100%; }
+        .iti { width: 100%; display: block; }
+        .iti__dropdown-content { z-index: 9999 !important; }
         .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags.png");}
         @media (min-resolution: 2x) {
           .iti__flag {background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@23.0.10/build/img/flags@2x.png");}
