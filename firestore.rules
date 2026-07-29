@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection - users can only read/update their own profile
+    match /users/{userId} {
+      allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'conecta.rm01@gmail.com');
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'conecta.rm01@gmail.com');
+      allow delete: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
+    }
+    
+    // Deleted users - admin only
+    match /users_deleted/{userId} {
+      allow read, write: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
+    }
+    
+    // Leads collection - admin can read/write, anyone can create (for contact forms)
+    match /leads/{leadId} {
+      allow create: if true; // Contact forms need to work without auth
+      allow read, update, delete: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
+    }
+    
+    // Projetos (portfolio) - anyone can read, only admin can write
+    match /projetos/{projetoId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
+    }
+    
+    // Recursos - authenticated users can read, only admin can write
+    match /recursos/{recursoId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
+    }
+  }
+}

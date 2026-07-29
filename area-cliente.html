@@ -452,23 +452,24 @@
 
                     // Carregar recursos filtrados pelo nível do plano
                     const userLevel = planOrder[userPlano] || 0;
-                    db.collection('recursos').get().then(snapshot => {
-                        if (snapshot.empty || userLevel === 0) {
-                            recursosContainer.innerHTML = `
-                                <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
-                                    <i data-lucide="book-open" style="width: 32px; height: 32px; color: var(--color-text-light); margin-bottom: 10px;"></i>
-                                    <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">${userLevel === 0 ? 'Subscreva um plano mensal para desbloquear guias e recursos exclusivos.' : 'Ainda não existem recursos disponíveis.'}</p>
-                                    ${userLevel === 0 ? '<a href="sites.html" class="btn btn-primary" style="margin-top: 15px; padding: 8px 20px; font-size: 0.85rem;">Ver Planos</a>' : ''}
-                                </div>
-                            `;
-                            lucide.createIcons();
-                            return;
-                        }
-                        const recursos = snapshot.docs
-                            .map(d => d.data())
-                            .filter(r => planOrder[r.nivelMinimo || r.nivel] <= userLevel);
-                        
-                        if (recursos.length === 0) {
+                    if (userLevel === 0) {
+                        recursosContainer.innerHTML = `
+                            <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
+                                <i data-lucide="book-open" style="width: 32px; height: 32px; color: var(--color-text-light); margin-bottom: 10px;"></i>
+                                <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">Subscreva um plano mensal para desbloquear guias e recursos exclusivos.</p>
+                                <a href="sites.html" class="btn btn-primary" style="margin-top: 15px; padding: 8px 20px; font-size: 0.85rem;">Ver Planos</a>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                        return;
+                    }
+                    
+                    // Build allowed levels array based on user's plan
+                    const allLevels = ['Básico', 'Intermédio', 'VIP'];
+                    const allowedLevels = allLevels.filter(l => planOrder[l] <= userLevel);
+                    
+                    db.collection('recursos').where('nivelMinimo', 'in', allowedLevels).get().then(snapshot => {
+                        if (snapshot.empty) {
                             recursosContainer.innerHTML = `
                                 <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
                                     <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">Ainda não existem recursos para o seu nível de plano.</p>
@@ -476,6 +477,7 @@
                             `;
                             return;
                         }
+                        const recursos = snapshot.docs.map(d => d.data());
 
                         recursosContainer.innerHTML = `
                             <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--color-text-main);"><i data-lucide="book-open" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 5px;"></i> Guias & Recursos</h3>
@@ -487,6 +489,8 @@
                             `).join('')}
                         `;
                         lucide.createIcons();
+                    }).catch(err => {
+                        console.error('Erro ao carregar recursos:', err);
                     });
                 }).catch(() => {
                     planDisplay.textContent = 'A sua área reservada está ativa.';
@@ -618,7 +622,25 @@
                 // Mostrar formulário Registo
                 formRegister.style.display = 'block';
                 formLogin.style.display = 'none';
+            });
         });
+    </script>
+    <script>
+        // Safety timeout: if auth-loading is still visible after 8 seconds, force-hide it and show login
+        setTimeout(() => {
+            const loader = document.getElementById('auth-loading');
+            if (loader && loader.style.display !== 'none') {
+                console.warn('Auth loading timeout - forcing login view');
+                loader.style.display = 'none';
+                // Show login form as fallback
+                const toggleContainer = document.getElementById('toggle-container');
+                const formLogin = document.getElementById('form-login');
+                const loggedInView = document.getElementById('logged-in-view');
+                if (toggleContainer) toggleContainer.style.display = 'flex';
+                if (formLogin) formLogin.style.display = 'block';
+                if (loggedInView) loggedInView.style.display = 'none';
+            }
+        }, 8000);
     </script>
     <script src="js/router.js"></script>
 </body>

@@ -410,6 +410,114 @@ tbody tr:hover {
   border-top: 1px solid var(--border);
 }
 
+/* --- VISUAL POLISH IMPROVEMENTS --- */
+
+/* 1. STAT CARDS */
+.stat-card {
+  background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 2. TABLE */
+th {
+  letter-spacing: 0.05em;
+}
+tbody tr {
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+tbody tr:nth-child(even) {
+  background-color: rgba(248, 250, 252, 0.5);
+}
+tbody tr:hover {
+  background-color: #e2e8f0;
+}
+
+/* 3. SIDEBAR */
+.sidebar {
+  background: linear-gradient(180deg, var(--sidebar-bg) 0%, #1e293b 100%);
+}
+.nav-links li.active a {
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.4);
+}
+
+/* 4. TOPBAR */
+.topbar {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* 5. MODALS */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+}
+.modal-content {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  transform: scale(0.95) translateY(20px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.modal-overlay.active .modal-content {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+/* 6. BUTTONS */
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
+}
+.btn-danger {
+  transition: all 0.2s ease;
+}
+.btn-danger:hover {
+  background-color: #dc2626;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  transition: all 0.2s ease;
+}
+.btn-outline:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.2);
+}
+
+/* 7. CARDS GRID */
+.item-card {
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.item-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+
+/* 8. TOAST */
+.toast {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  animation: slideInToast 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes slideInToast {
+  0% { transform: translateX(100%) scale(0.9); opacity: 0; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+/* 9. LOADER */
+.loader-center {
+  align-items: center;
+  min-height: 150px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
