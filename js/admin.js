@@ -771,6 +771,11 @@ function loadPortfolio() {
 
 async function handlePortfolioSubmit(e) {
     e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'A guardar...';
+
     const id = document.getElementById('projId').value;
     const data = {
         nome: document.getElementById('projNome').value,
@@ -795,6 +800,9 @@ async function handlePortfolioSubmit(e) {
     } catch(err) {
         console.error(err);
         showToast('Erro ao guardar projeto.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 
@@ -862,6 +870,11 @@ function loadRecursos() {
 
 async function handleRecursoSubmit(e) {
     e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'A guardar...';
+
     const id = document.getElementById('recId').value;
     const data = {
         titulo: document.getElementById('recTitulo').value,
@@ -883,6 +896,9 @@ async function handleRecursoSubmit(e) {
     } catch(err) {
         console.error(err);
         showToast('Erro ao guardar recurso.', 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
     }
 }
 

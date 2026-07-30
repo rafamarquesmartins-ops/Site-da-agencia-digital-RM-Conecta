@@ -410,14 +410,17 @@
                                 if (data.disabled) {
                                     auth.signOut();
                                     showError('A sua conta foi encerrada permanentemente por um administrador.');
+                                    setTimeout(() => window.location.reload(), 3000);
                                 } else if (data.status === 'suspenso') {
                                     auth.signOut();
                                     showError('A sua conta encontra-se temporariamente suspensa por um administrador.');
+                                    setTimeout(() => window.location.reload(), 3000);
                                 } else if (data.forceLogout) {
                                     const loginTime = new Date(user.metadata.lastSignInTime).getTime();
                                     if (data.forceLogout > loginTime) {
                                         auth.signOut();
                                         showError('A sua sessão foi terminada remotamente por um administrador.');
+                                        setTimeout(() => window.location.reload(), 3000);
                                     }
                                 }
                             } else {
@@ -425,6 +428,7 @@
                                 // Admin removed the record!
                                 auth.signOut();
                                 showError('A sua conta foi removida do sistema.');
+                                setTimeout(() => window.location.reload(), 3000);
                             }
                         });
 
