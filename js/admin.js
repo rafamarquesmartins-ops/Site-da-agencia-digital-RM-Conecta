@@ -99,9 +99,6 @@ function showToast(message, type = 'success') {
 }
 
 // Global data references for filters
-let crmLastVisible = null;
-let crmCurrentFilter = '';
-let crmLeadsData = { ativos: [], excluidos: [] };
 let recentLeadsData = [];
 let dashboardLeadsLimit = Infinity;
 let currentUsersTab = 'ativos';

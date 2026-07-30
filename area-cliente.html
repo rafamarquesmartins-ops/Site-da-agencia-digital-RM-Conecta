@@ -57,6 +57,27 @@
             <div style="max-width: 500px; margin: 0 auto; background: white; padding: var(--spacing-md); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); border: 1px solid #E2E8F0;">
                 
                 <!-- Toggle -->
+                <div id="toast-container" class="toast-container"></div>
+
+    <!-- Password Reset Modal -->
+    <div id="reset-password-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+        <div style="background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0; font-size: 1.25rem;">Recuperar Palavra-passe</h3>
+                <button type="button" id="btn-close-reset-modal" style="background: none; border: none; cursor: pointer; color: #64748b;">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Insira o seu email abaixo. Enviaremos um link para definir uma nova palavra-passe.</p>
+            <form id="form-reset-password">
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
+                    <input type="email" id="reset-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                </div>
+                <button type="submit" id="btn-submit-reset" class="btn btn-primary" style="width: 100%;">Enviar Link de Recuperação</button>
+            </form>
+        </div>
+    </div>
                 <div id="toggle-container" style="display: flex; background: var(--color-bg-sec); border-radius: 50px; padding: 5px; margin-bottom: var(--spacing-md);">
                     <button id="btn-login" style="flex: 1; padding: 10px; border: none; background: white; border-radius: 50px; font-weight: 600; color: var(--color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;">Iniciar Sessão</button>
                     <button id="btn-register" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 50px; font-weight: 600; color: var(--color-text-sec); cursor: pointer; transition: all 0.3s ease;">Criar Conta</button>
@@ -80,9 +101,12 @@
                                 <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
                             </button>
                         </div>
-                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" id="keep-logged-login" style="width: auto;">
-                            <label for="keep-logged-login" style="margin: 0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Manter sessão iniciada</label>
+                        <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="keep-logged-login" style="width: auto;">
+                                <label for="keep-logged-login" style="margin: 0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Manter sessão iniciada</label>
+                            </div>
+                            <a href="#" id="btn-forgot-password" style="font-size: 0.85rem; color: var(--primary); text-decoration: none;">Esqueci-me da palavra-passe</a>
                         </div>
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar na Área de Cliente &rarr;</button>
                     </form>
@@ -640,6 +664,58 @@
                 if (loggedInView) loggedInView.style.display = 'none';
             }
         }, 8000);
+
+        // --- Password Reset Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnForgot = document.getElementById('btn-forgot-password');
+            const modalReset = document.getElementById('reset-password-modal');
+            const btnCloseReset = document.getElementById('btn-close-reset-modal');
+            const formReset = document.getElementById('form-reset-password');
+            
+            if(btnForgot && modalReset) {
+                btnForgot.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    modalReset.style.display = 'flex';
+                    // Auto-fill with the email if they already typed it
+                    const loginEmail = document.getElementById('login-email').value;
+                    if(loginEmail) document.getElementById('reset-email').value = loginEmail;
+                });
+            }
+
+            if(btnCloseReset && modalReset) {
+                btnCloseReset.addEventListener('click', () => {
+                    modalReset.style.display = 'none';
+                });
+            }
+
+            if(formReset) {
+                formReset.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('reset-email').value;
+                    const btnSubmit = document.getElementById('btn-submit-reset');
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = '<div class="loader" style="width: 20px; height: 20px; border-width: 2px; margin: 0 auto;"></div>';
+
+                    auth.sendPasswordResetEmail(email)
+                        .then(() => {
+                            modalReset.style.display = 'none';
+                            showSuccess('Link de recuperação enviado com sucesso. Verifique a sua caixa de entrada (e spam).');
+                        })
+                        .catch((error) => {
+                            console.error('Error password reset:', error);
+                            if (error.code === 'auth/user-not-found') {
+                                showError('Não existe nenhuma conta com esse email.');
+                            } else {
+                                showError('Ocorreu um erro ao enviar o link. Tente novamente mais tarde.');
+                            }
+                        })
+                        .finally(() => {
+                            btnSubmit.disabled = false;
+                            btnSubmit.innerHTML = 'Enviar Link de Recuperação';
+                        });
+                });
+            }
+        });
     </script>
     <script src="js/router.js"></script>
 </body>

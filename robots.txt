@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Bloquear acesso a páginas de admin/cliente
+Disallow: /admin-rmconecta.html
+Disallow: /area-cliente.html
+
+Sitemap: https://www.rmconecta.pt/sitemap.xml
