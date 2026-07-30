@@ -5,4 +5,4 @@ Allow: /
 Disallow: /admin-rmconecta.html
 Disallow: /area-cliente.html
 
-Sitemap: https://www.rmconecta.pt/sitemap.xml
+Sitemap: https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/sitemap.xml
