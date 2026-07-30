@@ -543,7 +543,8 @@ function loadUsersData() {
             const user = doc.data();
             if (user.email) window.adminUsersByEmail[user.email.trim().toLowerCase()] = { id: doc.id, ...user };
             const dateField = user.dataRegisto || user.dataCriacao;
-            const date = dateField ? new Date(dateField.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+            const dateObj = safeToDate(dateField);
+            const date = dateObj ? dateObj.toLocaleDateString('pt-PT') : 'N/A';
             const plano = user.plano || 'Sem Plano';
             
             if (user.disabled || user.status === 'suspenso') {
@@ -601,16 +602,20 @@ function loadUsersData() {
         snap.forEach(doc => deletedUsers.push({ id: doc.id, ...doc.data() }));
         
         deletedUsers.sort((a, b) => {
-            const tA = a.dataExclusao ? a.dataExclusao.toMillis() : 0;
-            const tB = b.dataExclusao ? b.dataExclusao.toMillis() : 0;
+            const dateA = safeToDate(a.dataExclusao);
+            const dateB = safeToDate(b.dataExclusao);
+            const tA = dateA ? dateA.getTime() : 0;
+            const tB = dateB ? dateB.getTime() : 0;
             return tB - tA;
         });
 
         deletedUsers.forEach(user => {
             const dateFieldReg = user.dataRegisto || user.dataCriacao;
-            const dateReg = dateFieldReg ? new Date(dateFieldReg.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+            const dateObjReg = safeToDate(dateFieldReg);
+            const dateReg = dateObjReg ? dateObjReg.toLocaleDateString('pt-PT') : 'N/A';
             const dateFieldExcl = user.dataExclusao;
-            const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+            const dateObjExcl = safeToDate(dateFieldExcl);
+            const dateExcl = dateObjExcl ? dateObjExcl.toLocaleDateString('pt-PT') : 'N/A';
             const plano = user.plano || 'Sem Plano';
             tbodyExcluidos.innerHTML += `
                 <tr>
