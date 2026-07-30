@@ -5,12 +5,13 @@ service cloud.firestore {
     // Users collection - users can only read/update their own profile
     match /users/{userId} {
       allow read: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'conecta.rm01@gmail.com');
-      allow create: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId &&
+        (!request.resource.data.keys().hasAny(['isAdmin', 'disabled', 'forceLogout']));
       // Admins can update anything. Users can update their own profile but cannot change sensitive fields.
       allow update: if request.auth != null && (
         request.auth.token.email == 'conecta.rm01@gmail.com' ||
         (request.auth.uid == userId && 
-         (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['plano', 'status', 'disabled', 'isAdmin', 'dataCriacao', 'dataRegisto'])))
+         (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['plano', 'status', 'disabled', 'isAdmin', 'dataCriacao', 'dataRegisto', 'forceLogout'])))
       );
       allow delete: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
     }
@@ -22,7 +23,8 @@ service cloud.firestore {
     
     // Leads collection - admin can read/write, anyone can create (for contact forms)
     match /leads/{leadId} {
-      allow create: if true; // Contact forms need to work without auth
+      allow create: if request.resource.data.keys().hasAll(['nome', 'email', 'origem', 'estado']) &&
+                       request.resource.data.keys().size() <= 15;
       allow read, update, delete: if request.auth != null && request.auth.token.email == 'conecta.rm01@gmail.com';
     }
     

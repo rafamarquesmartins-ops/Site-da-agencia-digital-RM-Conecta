@@ -110,9 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 3. Scroll Reveal Animation (Intersection Observer)
+    window.globalRevealObserver = null;
     window.initReveal = function() {
         const revealElements = document.querySelectorAll('.reveal');
         
+        if (window.globalRevealObserver) {
+            window.globalRevealObserver.disconnect();
+        }
+
         const revealCallback = (entries, observer) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -127,10 +132,10 @@ document.addEventListener('DOMContentLoaded', () => {
             rootMargin: "0px 0px -50px 0px"
         };
 
-        const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+        window.globalRevealObserver = new IntersectionObserver(revealCallback, revealOptions);
         
         revealElements.forEach(el => {
-            revealObserver.observe(el);
+            window.globalRevealObserver.observe(el);
         });
     };
     

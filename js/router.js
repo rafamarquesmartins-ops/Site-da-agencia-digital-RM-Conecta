@@ -70,10 +70,13 @@ function initRouter() {
     history.replaceState({ url: window.location.pathname }, '', window.location.pathname);
 }
 
+let isNavigating = false;
 async function navigateTo(url, push = true) {
+    if (isNavigating) return;
     const contentDiv = document.getElementById('app-content');
     if (!contentDiv) return window.location.href = url; // Fallback se algo falhar
 
+    isNavigating = true;
     // 1. Iniciar animação de saída (fade out)
     contentDiv.classList.add('page-fade-out');
 
@@ -154,10 +157,12 @@ async function navigateTo(url, push = true) {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             
+            isNavigating = false;
         }, 300); // 300ms = 0.3s de transição
 
     } catch (error) {
         console.error('Erro na transição fluída:', error);
+        isNavigating = false;
         // Fallback: carregar página normalmente se houver erro
         window.location.href = url;
     }
