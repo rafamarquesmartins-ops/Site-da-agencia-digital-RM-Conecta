@@ -844,7 +844,7 @@ function loadRecursos() {
                             <span class="badge" style="background:var(--bg-secondary); border:1px solid var(--border);">${nivel}</span>
                         </div>
                         <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">${r.descricao}</p>
-                        <a href="${r.url}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.875rem; display: flex; align-items: center; gap: 4px;">
+                        <a href="${r.url}" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none; font-size: 0.875rem; display: flex; align-items: center; gap: 4px;">
                             <i data-lucide="external-link" style="width:14px; height:14px;"></i> Ver Ficheiro
                         </a>
                         <div class="item-card-actions">
