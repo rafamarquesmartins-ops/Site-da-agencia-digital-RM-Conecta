@@ -111,6 +111,26 @@ let crmPageSize = 20;
 
 let usersUnsubscribe = null;
 let deletedUsersUnsubscribe = null;
+let dashboardUsersUnsubscribe = null;
+let dashboardProjectsUnsubscribe = null;
+let dashboardRecentLeadsUnsubscribe = null;
+let portfolioUnsubscribe = null;
+let recursosUnsubscribe = null;
+
+// Helper: safely convert Firebase Timestamp or other date formats to JS Date
+function safeToDate(field) {
+    if (!field) return null;
+    if (typeof field.toDate === 'function') return field.toDate();
+    if (field instanceof Date) return field;
+    if (typeof field === 'string' || typeof field === 'number') return new Date(field);
+    return null;
+}
+
+// Helper: safely escape a string for use inside an onclick HTML attribute
+function escapeForOnclick(str) {
+    if (!str) return '';
+    return encodeURIComponent(str).replace(/'/g, '%27');
+}
 
 function initAdmin() {
     loadDashboardStats();
@@ -144,13 +164,15 @@ async function loadDashboardStats() {
             });
         }
 
-        // Users
-        db.collection('users').onSnapshot(snap => {
+        // Users (with unsubscribe)
+        if (dashboardUsersUnsubscribe) dashboardUsersUnsubscribe();
+        dashboardUsersUnsubscribe = db.collection('users').onSnapshot(snap => {
             document.getElementById('statUsers').textContent = snap.size;
         });
         
-        // Projects
-        db.collection('projetos').onSnapshot(snap => {
+        // Projects (with unsubscribe)
+        if (dashboardProjectsUnsubscribe) dashboardProjectsUnsubscribe();
+        dashboardProjectsUnsubscribe = db.collection('projetos').onSnapshot(snap => {
             document.getElementById('statProjects').textContent = snap.size;
         });
 
@@ -172,7 +194,8 @@ async function loadDashboardStats() {
             document.getElementById('statNovosLeads').textContent = totalNovos;
 
             // Fetch recent 20 leads for the table
-            db.collection('leads').orderBy('dataEnvio', 'desc').limit(20).onSnapshot(snap => {
+            if (dashboardRecentLeadsUnsubscribe) dashboardRecentLeadsUnsubscribe();
+            dashboardRecentLeadsUnsubscribe = db.collection('leads').orderBy('dataEnvio', 'desc').limit(20).onSnapshot(snap => {
                 recentLeadsData = [];
                 snap.forEach(doc => {
                     const data = doc.data();
@@ -205,7 +228,7 @@ function renderRecentLeads() {
     let html = '';
     toShow.forEach(lead => {
         const dateField = lead.dataEnvio || lead.dataCriacao;
-        const dateObj = dateField ? new Date(dateField.toDate()) : null;
+        const dateObj = safeToDate(dateField);
         const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; margin-left: 5px;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
         const estadoRaw = lead.estado || 'por contactar';
         const estadoNormalized = estadoRaw.toLowerCase() === 'novo' ? 'Por Contactar' : estadoRaw.charAt(0).toUpperCase() + estadoRaw.slice(1).toLowerCase();
@@ -346,11 +369,13 @@ function renderCRMTable(empty = false) {
 
     leadsToRender.forEach(lead => {
         const dateFieldReg = lead.dataEnvio || lead.dataCriacao;
-        const dateReg = dateFieldReg ? new Date(dateFieldReg.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const dateObjReg = safeToDate(dateFieldReg);
+        const dateReg = dateObjReg ? dateObjReg.toLocaleDateString('pt-PT') : 'N/A';
         const dateFieldExcl = lead.dataExclusao;
-        const dateExcl = dateFieldExcl ? new Date(dateFieldExcl.toDate()).toLocaleDateString('pt-PT') : 'N/A';
+        const dateObjExcl = safeToDate(dateFieldExcl);
+        const dateExcl = dateObjExcl ? dateObjExcl.toLocaleDateString('pt-PT') : 'N/A';
         
-        const dateObj = dateFieldReg ? new Date(dateFieldReg.toDate()) : null;
+        const dateObj = dateObjReg;
         const date = dateObj ? `${dateObj.toLocaleDateString('pt-PT')} <span style="color: #64748b; font-size: 0.85rem; display:block;">${dateObj.toLocaleTimeString('pt-PT', {hour: '2-digit', minute:'2-digit'})}</span>` : 'N/A';
         
         const estadoRaw = lead.estado || 'por contactar';
@@ -396,7 +421,7 @@ function renderCRMTable(empty = false) {
                 <td>${date}</td>
                 <td>
                     ${btnVerConta}
-                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${encodeURIComponent(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
+                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${escapeForOnclick(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
                         <i data-lucide="eye"></i>
                     </button>
                     <button class="btn-icon" onclick="deleteLead('${lead.id}')" title="Excluir Lead">
@@ -414,7 +439,7 @@ function renderCRMTable(empty = false) {
                 <td>${dateReg}</td>
                 <td><span style="color: var(--danger)">${dateExcl}</span></td>
                 <td>
-                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${encodeURIComponent(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
+                    <button class="btn-icon" onclick="showAdminAlert('Mensagem da Lead', decodeURIComponent('${escapeForOnclick(lead.mensagem || 'Sem mensagem')}'))" title="Ver Mensagem">
                         <i data-lucide="eye"></i>
                     </button>
                     <button class="btn-icon" onclick="restaurarLead('${lead.id}')" title="Restaurar Lead">
@@ -707,13 +732,17 @@ async function deleteUserPermanently(id) {
 }
 
 // 4. Portfolio Module
+let portfolioCache = {};
 function loadPortfolio() {
-    db.collection('projetos').orderBy('ordem', 'asc').onSnapshot(snap => {
+    if (portfolioUnsubscribe) portfolioUnsubscribe();
+    portfolioUnsubscribe = db.collection('projetos').orderBy('ordem', 'asc').onSnapshot(snap => {
         const grid = document.getElementById('portfolioGrid');
         grid.innerHTML = '';
         let htmlGrid = '';
+        portfolioCache = {};
         snap.forEach(doc => {
             const p = doc.data();
+            portfolioCache[doc.id] = p;
             const imgUrl = p.imagemUrl || p.imagem;
             htmlGrid += `
                 <div class="item-card">
@@ -723,7 +752,7 @@ function loadPortfolio() {
                         <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 8px;">${p.tipo}</p>
                         <p style="font-size: 0.875rem; color: var(--text-light)">Ordem: ${p.ordem || 0}</p>
                         <div class="item-card-actions">
-                            <button class="btn btn-primary" style="flex:1; justify-content:center; padding:6px;" onclick='editPortfolio("${doc.id}", ${JSON.stringify(p).replace(/'/g, "&apos;")})'>Editar</button>
+                            <button class="btn btn-primary" style="flex:1; justify-content:center; padding:6px;" onclick="editPortfolio('${doc.id}')">Editar</button>
                             <button class="btn btn-danger" style="padding:6px;" onclick="deletePortfolio('${doc.id}')"><i data-lucide="trash-2"></i></button>
                         </div>
                     </div>
@@ -764,15 +793,17 @@ async function handlePortfolioSubmit(e) {
     }
 }
 
-window.editPortfolio = function(id, data) {
+window.editPortfolio = function(id) {
+    const data = portfolioCache[id];
+    if (!data) { showToast('Erro: dados do projeto não encontrados.', 'error'); return; }
     document.getElementById('portfolioModalTitle').textContent = 'Editar Projeto';
     document.getElementById('projId').value = id;
-    document.getElementById('projNome').value = data.nome;
-    document.getElementById('projTipo').value = data.tipo;
+    document.getElementById('projNome').value = data.nome || '';
+    document.getElementById('projTipo').value = data.tipo || '';
     document.getElementById('projImg').value = data.imagemUrl || data.imagem || '';
     document.getElementById('projOrdem').value = data.ordem || 0;
-    document.getElementById('projDesafio').value = data.desafio;
-    document.getElementById('projResultado').value = data.resultado;
+    document.getElementById('projDesafio').value = data.desafio || '';
+    document.getElementById('projResultado').value = data.resultado || '';
     openModal('portfolioModal');
 }
 
@@ -788,13 +819,17 @@ async function deletePortfolio(id) {
 }
 
 // 5. Recursos Module
+let recursosCache = {};
 function loadRecursos() {
-    db.collection('recursos').onSnapshot(snap => {
+    if (recursosUnsubscribe) recursosUnsubscribe();
+    recursosUnsubscribe = db.collection('recursos').onSnapshot(snap => {
         const grid = document.getElementById('recursosGrid');
         grid.innerHTML = '';
         let htmlGrid = '';
+        recursosCache = {};
         snap.forEach(doc => {
             const r = doc.data();
+            recursosCache[doc.id] = r;
             const nivel = r.nivelMinimo || r.nivel || 'N/A';
             htmlGrid += `
                 <div class="item-card">
@@ -808,7 +843,7 @@ function loadRecursos() {
                             <i data-lucide="external-link" style="width:14px; height:14px;"></i> Ver Ficheiro
                         </a>
                         <div class="item-card-actions">
-                            <button class="btn btn-primary" style="flex:1; justify-content:center; padding:6px;" onclick='editRecurso("${doc.id}", ${JSON.stringify(r).replace(/'/g, "&apos;")})'>Editar</button>
+                            <button class="btn btn-primary" style="flex:1; justify-content:center; padding:6px;" onclick="editRecurso('${doc.id}')">Editar</button>
                             <button class="btn btn-danger" style="padding:6px;" onclick="deleteRecurso('${doc.id}')"><i data-lucide="trash-2"></i></button>
                         </div>
                     </div>
@@ -846,12 +881,14 @@ async function handleRecursoSubmit(e) {
     }
 }
 
-window.editRecurso = function(id, data) {
+window.editRecurso = function(id) {
+    const data = recursosCache[id];
+    if (!data) { showToast('Erro: dados do recurso não encontrados.', 'error'); return; }
     document.getElementById('recursoModalTitle').textContent = 'Editar Recurso';
     document.getElementById('recId').value = id;
-    document.getElementById('recTitulo').value = data.titulo;
-    document.getElementById('recDesc').value = data.descricao;
-    document.getElementById('recUrl').value = data.url;
+    document.getElementById('recTitulo').value = data.titulo || '';
+    document.getElementById('recDesc').value = data.descricao || '';
+    document.getElementById('recUrl').value = data.url || '';
     document.getElementById('recNivel').value = data.nivelMinimo || data.nivel || '';
     openModal('recursoModal');
 }

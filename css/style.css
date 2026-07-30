@@ -180,26 +180,7 @@ section {
 
 
 
-.btn-danger-solid {
-  background: #ef4444;
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 50px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-.btn-danger-solid:hover {
-  background: #dc2626;
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-}
+
 
 /* Animations */
 @keyframes skeleton-pulse {
@@ -411,10 +392,6 @@ label {
   transform: translateY(0);
 }
 
-.page-fade-out {
-  opacity: 0;
-  transform: translateY(-10px);
-}
 
 /* FAQ */
 .faq-item {
