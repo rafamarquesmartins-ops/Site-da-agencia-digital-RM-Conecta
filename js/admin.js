@@ -944,7 +944,9 @@ window.showAdminAlert = function(title, message) {
         <h3 style="margin-bottom:10px;color:var(--text-main);display:flex;align-items:center;gap:8px;">
             <i data-lucide="info" style="color:var(--primary);"></i> ${title}
         </h3>
-        <p style="margin-bottom:20px;color:var(--text-secondary);font-size:0.95rem;line-height:1.5;">${message}</p>
+        <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 20px; padding: 10px; background: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
+            <p style="color:#166534;font-size:0.95rem;line-height:1.5;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap;margin:0;">${message}</p>
+        </div>
         <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="closeAdminModal()">OK</button>
     `;
     lucide.createIcons();

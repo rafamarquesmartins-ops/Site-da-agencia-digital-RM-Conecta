@@ -99,7 +99,6 @@
         ];
 
         function renderProjetos(projetos) {
-            window.addEventListener("load", async () => {
             const grid = document.getElementById("portfolio-grid");
             if (projetos.length === 0) {
                 grid.innerHTML = '<p class="text-center u-1a8bee">Novos casos de sucesso em breve.</p>';
@@ -123,25 +122,28 @@
         }
 
         // Carregar do Firestore, misturando com os dados locais
-        db.collection('projetos').orderBy('ordem', 'asc').get()
-            .then(snapshot => {
-                let projetosParaMostrar = [...fallbackProjetos];
-                if (!snapshot.empty) {
-                    const projetosNovos = snapshot.docs.map(doc => doc.data());
-                    projetosParaMostrar = projetosParaMostrar.concat(projetosNovos);
-                }
-                
-                // Ordenar todos os projetos pela ordem (para intercalar ou colocar abaixo dependendo do valor)
-                projetosParaMostrar.sort((a, b) => (a.ordem || 99) - (b.ordem || 99));
-                
-                renderProjetos(projetosParaMostrar);
-            })
-            .catch((err) => {
-                console.error('Portfolio load error:', err);
+        // Wrap in IIFE to keep scope clean and execute immediately
+        (function initPortfolio() {
+            if (typeof db !== 'undefined') {
+                db.collection('projetos').orderBy('ordem', 'asc').get()
+                    .then(snapshot => {
+                        let projetosParaMostrar = [...fallbackProjetos];
+                        if (!snapshot.empty) {
+                            const projetosNovos = snapshot.docs.map(doc => doc.data());
+                            projetosParaMostrar = projetosParaMostrar.concat(projetosNovos);
+                        }
+                        
+                        projetosParaMostrar.sort((a, b) => (a.ordem || 99) - (b.ordem || 99));
+                        renderProjetos(projetosParaMostrar);
+                    })
+                    .catch((err) => {
+                        console.error('Portfolio load error:', err);
+                        renderProjetos(fallbackProjetos);
+                    });
+            } else {
                 renderProjetos(fallbackProjetos);
-            });
-    
-});
+            }
+        })();
         </script>
     </main>
 

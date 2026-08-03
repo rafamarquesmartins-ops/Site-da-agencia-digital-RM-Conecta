@@ -163,7 +163,13 @@ async function navigateTo(url, push = true) {
                     }, 50);
                 }
             } else {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                // Força o scroll para o topo de forma imediata (evita falhas do smooth scroll em páginas longas como a FAQ)
+                if ('scrollRestoration' in history) {
+                    history.scrollRestoration = 'manual';
+                }
+                window.scrollTo(0, 0);
+                // Garantir novamente após um pequeno atraso caso haja layout shifts (ex: imagens, fonts)
+                setTimeout(() => window.scrollTo(0, 0), 100);
             }
             
             isNavigating = false;
