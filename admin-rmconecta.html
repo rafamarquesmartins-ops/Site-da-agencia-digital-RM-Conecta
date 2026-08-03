@@ -33,7 +33,7 @@
             <li><a href="#" data-target="section-portfolio"><i data-lucide="briefcase"></i> Portfólio</a></li>
             <li><a href="#" data-target="section-recursos"><i data-lucide="book-open"></i> Recursos</a></li>
         </ul>
-        <ul class="nav-links" style="flex: none;">
+        <ul class="nav-links u-0127a3">
             <li><a href="#" id="btnLogout"><i data-lucide="log-out"></i> Sair</a></li>
         </ul>
     </aside>
@@ -53,11 +53,11 @@
     <div id="app-content" class="page-transition">
 
         <!-- Loading state initially -->
-        <div id="fullLoader" class="loader-center" style="height: 80vh; align-items: center;">
+        <div id="fullLoader" class="loader-center u-c5500f">
             <div class="loader"></div>
         </div>
 
-        <div id="appContent" style="display: none;">
+        <div id="appContent" class="u-224b51">
             <!-- Dashboard Section -->
             <section id="section-dashboard" class="content-section active">
                 <div class="section-header">
@@ -83,9 +83,9 @@
                 </div>
                 
                 <div class="table-container">
-                    <div style="padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-                        <h3 style="font-size: 1rem; margin: 0;">Leads Recentes</h3>
-                        <select class="form-control" id="dashboardLeadsLimit" style="width: auto; padding: 4px 10px; font-size: 0.85rem;">
+                    <div class="u-6c992c">
+                        <h3 class="u-40a221">Leads Recentes</h3>
+                        <select class="form-control" id="dashboardLeadsLimit" class="u-f7e916">
                             <option value="5">Últimas 5</option>
                             <option value="10">Últimas 10</option>
                             <option value="25">Últimas 25</option>
@@ -112,14 +112,14 @@
 
             <!-- CRM Section -->
             <section id="section-crm" class="content-section">
-                <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                <div class="section-header u-5589a8">
                     <h2>Gestão de Leads (CRM)</h2>
-                    <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; flex-wrap: wrap; gap: 15px;">
-                        <div style="display: flex; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; overflow-x: auto;">
-                            <button class="btn btn-outline active-tab-btn" onclick="switchCrmTab('ativos')" id="tab-crm-ativos" style="border-color: var(--primary); color: var(--primary);">Leads Ativos</button>
+                    <div class="u-61e957">
+                        <div class="u-a58dd6">
+                            <button class="btn btn-outline active-tab-btn" onclick="switchCrmTab('ativos')" id="tab-crm-ativos" class="u-eccf73">Leads Ativos</button>
                             <button class="btn btn-outline" onclick="switchCrmTab('excluidos')" id="tab-crm-excluidos">Leads Excluídos</button>
                         </div>
-                        <div style="display: flex; gap: 12px;">
+                        <div class="u-800a82">
                             <select class="form-control" id="filterEstado">
                             <option value="">Todos os Estados</option>
                             <option value="Por Contactar">Por Contactar</option>
@@ -146,7 +146,7 @@
                     </table>
                 </div>
 
-                <div class="table-container" id="crm-excluidos" style="display: none;">
+                <div class="table-container" id="crm-excluidos" class="u-224b51">
                     <table>
                         <thead>
                             <tr>
@@ -163,17 +163,17 @@
                     </table>
                 </div>
                 
-                <div style="text-align: center; margin-top: 20px;">
-                    <button id="btnLoadMoreCrm" class="btn btn-outline" style="display: none; margin: 0 auto;">Carregar Mais</button>
+                <div class="u-2d7f5b">
+                    <button id="btnLoadMoreCrm" class="btn btn-outline u-e85c58">Carregar Mais</button>
                 </div>
             </section>
 
             <!-- Utilizadores Section -->
             <section id="section-utilizadores" class="content-section">
-                <div class="section-header" style="flex-direction: column; align-items: flex-start; gap: 15px;">
+                <div class="section-header u-5589a8">
                     <h2>Utilizadores</h2>
-                    <div style="display: flex; gap: 10px; border-bottom: 2px solid var(--border); padding-bottom: 10px; width: 100%; overflow-x: auto;">
-                        <button class="btn btn-outline active-tab-btn" onclick="switchUsersTab('ativos')" id="tab-users-ativos" style="border-color: var(--primary); color: var(--primary);">Ativos</button>
+                    <div class="u-63c1df">
+                        <button class="btn btn-outline active-tab-btn" onclick="switchUsersTab('ativos')" id="tab-users-ativos" class="u-eccf73">Ativos</button>
                         <button class="btn btn-outline" onclick="switchUsersTab('suspensos')" id="tab-users-suspensos">Suspensos</button>
                         <button class="btn btn-outline" onclick="switchUsersTab('excluidos')" id="tab-users-excluidos">Excluídos</button>
                     </div>
@@ -195,7 +195,7 @@
                     </table>
                 </div>
                 <!-- Tabela Excluídos e Suspensos -->
-                <div id="users-suspensos" class="table-container" style="display: none;">
+                <div id="users-suspensos" class="table-container u-224b51">
                     <table>
                         <thead>
                             <tr>
@@ -210,7 +210,7 @@
                     </table>
                 </div>
                 
-                <div id="users-excluidos" class="table-container" style="display: none;">
+                <div id="users-excluidos" class="table-container u-224b51">
                     <table>
                         <thead>
                             <tr>
@@ -290,7 +290,7 @@
                     <label for="projResultado">Resultado</label>
                     <textarea id="projResultado" class="form-control" rows="3" required></textarea>
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <div class="u-4153fb">
                     <button type="button" class="btn" onclick="closeModal('portfolioModal')">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar Projeto</button>
                 </div>
@@ -327,7 +327,7 @@
                         <option value="VIP">VIP</option>
                     </select>
                 </div>
-                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <div class="u-4153fb">
                     <button type="button" class="btn" onclick="closeModal('recursoModal')">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar Recurso</button>
                 </div>

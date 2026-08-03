@@ -42,7 +42,12 @@ function initRouter() {
                     setTimeout(() => card.style.boxShadow = '', 2000);
                 }
                 
-                target.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(() => {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 500);
+                }, 50);
                 history.pushState(null, '', url);
             }
             return;
@@ -138,20 +143,24 @@ async function navigateTo(url, push = true) {
             }
             
             // Scroll para o topo ou para a âncora
-            const hashIndex = url.indexOf('#');
-            if (hashIndex !== -1) {
-                const hash = url.substring(hashIndex);
-                const target = document.querySelector(hash);
+            if (url.includes('#')) {
+                const hash = url.split('#')[1];
+                const target = document.getElementById(hash);
                 if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                    
-                    if(target.classList.contains('plan-card') || target.closest('.plan-card')) {
-                        const card = target.classList.contains('plan-card') ? target : target.closest('.plan-card');
-                        card.style.boxShadow = '0 0 0 4px var(--color-accent)';
-                        setTimeout(() => card.style.boxShadow = '', 2000);
-                    }
-                } else {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Small delay to allow DOM render
+                    setTimeout(() => {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Second delay for after images potentially load
+                        setTimeout(() => {
+                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 500);
+                        
+                        if(target.classList.contains('plan-card') || target.closest('.plan-card')) {
+                            const card = target.classList.contains('plan-card') ? target : target.closest('.plan-card');
+                            card.style.boxShadow = '0 0 0 4px var(--color-accent)';
+                            setTimeout(() => card.style.boxShadow = '', 2000);
+                        }
+                    }, 50);
                 }
             } else {
                 window.scrollTo({ top: 0, behavior: 'smooth' });

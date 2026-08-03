@@ -177,44 +177,34 @@ async function loadDashboardStats() {
         });
 
         // Leads (Total & Novos)
-        try {
-            // Conta total de ativos (Total - Excluídos para evitar index composto)
-            const totalSnap = await db.collection('leads').count().get();
-            const deletedSnap = await db.collection('leads').where('isDeleted', '==', true).count().get();
-            const totalAtivos = totalSnap.data().count - deletedSnap.data().count;
+        if (dashboardRecentLeadsUnsubscribe) dashboardRecentLeadsUnsubscribe();
+        
+        // Use a standard onSnapshot for ALL leads to calculate stats and keep them updated
+        dashboardRecentLeadsUnsubscribe = db.collection('leads').orderBy('dataEnvio', 'desc').onSnapshot(snap => {
+            recentLeadsData = [];
+            let totalAtivos = 0;
+            let totalNovos = 0;
             
-            // Conta novos
-            const novosSnap1 = await db.collection('leads').where('estado', '==', 'Por Contactar').count().get();
-            const novosSnap2 = await db.collection('leads').where('estado', '==', 'Novo').count().get();
-            const novosSnap3 = await db.collection('leads').where('estado', '==', 'novo').count().get();
-            const novosSnap4 = await db.collection('leads').where('estado', '==', 'por contactar').count().get();
-            const totalNovos = novosSnap1.data().count + novosSnap2.data().count + novosSnap3.data().count + novosSnap4.data().count;
+            snap.forEach(doc => {
+                const data = doc.data();
+                if (!data.isDeleted) {
+                    totalAtivos++;
+                    const estado = (data.estado || '').toLowerCase();
+                    if (estado === 'novo' || estado === 'por contactar') {
+                        totalNovos++;
+                    }
+                    recentLeadsData.push({ id: doc.id, ...data });
+                }
+            });
             
             document.getElementById('statTotalLeads').textContent = totalAtivos;
             document.getElementById('statNovosLeads').textContent = totalNovos;
+            
+            renderRecentLeads();
+        }, err => {
+            console.error('Error in leads onSnapshot:', err);
+        });
 
-            // Fetch recent 20 leads for the table
-            if (dashboardRecentLeadsUnsubscribe) dashboardRecentLeadsUnsubscribe();
-            dashboardRecentLeadsUnsubscribe = db.collection('leads').orderBy('dataEnvio', 'desc').limit(20).onSnapshot(snap => {
-                recentLeadsData = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if (!data.isDeleted) {
-                        recentLeadsData.push({ id: doc.id, ...data });
-                    }
-                });
-                renderRecentLeads();
-            });
-
-        } catch (e) {
-            console.error('Error with aggregate queries, fallback to old method: ', e);
-            // fallback if count() fails (e.g. old SDK cached)
-            db.collection('leads').orderBy('dataEnvio', 'desc').limit(50).onSnapshot(snap => {
-                recentLeadsData = [];
-                snap.forEach(doc => recentLeadsData.push({id: doc.id, ...doc.data()}));
-                renderRecentLeads();
-            });
-        }
     } catch (err) {
         console.error("Error loading stats:", err);
     }
@@ -269,12 +259,7 @@ function switchCrmTab(tab) {
     document.getElementById('crm-excluidos').style.display = tab === 'excluidos' ? 'block' : 'none';
     
     document.getElementById('tab-crm-ativos').classList.toggle('active-tab-btn', tab === 'ativos');
-    document.getElementById('tab-crm-ativos').style.borderColor = tab === 'ativos' ? 'var(--primary)' : '';
-    document.getElementById('tab-crm-ativos').style.color = tab === 'ativos' ? 'var(--primary)' : '';
-    
     document.getElementById('tab-crm-excluidos').classList.toggle('active-tab-btn', tab === 'excluidos');
-    document.getElementById('tab-crm-excluidos').style.borderColor = tab === 'excluidos' ? 'var(--primary)' : '';
-    document.getElementById('tab-crm-excluidos').style.color = tab === 'excluidos' ? 'var(--primary)' : '';
     
     crmLastVisible = null;
     crmLeadsData = { ativos: [], excluidos: [] };
@@ -288,15 +273,13 @@ async function fetchCRMData(isLoadMore = false) {
     if(btn) btn.style.display = 'none';
     const isExcluidoTab = (currentCrmTab === 'excluidos');
 
-    let query = db.collection('leads')
-        .where('isDeleted', '==', isExcluidoTab)
-        .orderBy('dataEnvio', 'desc');
+    let query = db.collection('leads').orderBy('dataEnvio', 'desc');
 
     if (crmLastVisible && isLoadMore) {
         query = query.startAfter(crmLastVisible);
     }
     
-    query = query.limit(50);
+    query = query.limit(100);
 
     try {
         const snap = await query.get();
@@ -308,11 +291,19 @@ async function fetchCRMData(isLoadMore = false) {
 
         crmLastVisible = snap.docs[snap.docs.length - 1];
         
+        let addedInThisBatch = 0;
+
         snap.forEach(doc => {
             const data = doc.data();
             const lEstado = (data.estado || 'por contactar').toLowerCase();
             const normalizedState = lEstado === 'novo' ? 'por contactar' : lEstado;
             
+            const isDocDeleted = data.isDeleted === true;
+
+            // Only process if it matches the current tab (isExcluidoTab)
+            if (isExcluidoTab && !isDocDeleted) return;
+            if (!isExcluidoTab && isDocDeleted) return;
+
             let matchesFilter = true;
             if (crmCurrentFilter && normalizedState !== crmCurrentFilter.toLowerCase()) {
                 matchesFilter = false;
@@ -324,15 +315,22 @@ async function fetchCRMData(isLoadMore = false) {
                 } else {
                     crmLeadsData.ativos.push({ id: doc.id, ...data });
                 }
+                addedInThisBatch++;
             }
         });
 
         renderCRMTable();
         
-        if(snap.docs.length === 50 && btn) {
+        if(snap.docs.length === 100 && btn) {
             btn.style.display = 'block';
             btn.onclick = () => fetchCRMData(true);
         }
+        
+        // Se a filtragem resultou em zero itens na aba atual mas ainda há mais docs na DB, carregar o próximo lote automaticamente
+        if (addedInThisBatch === 0 && snap.docs.length === 100) {
+            fetchCRMData(true);
+        }
+
     } catch(e) {
         console.error("Error fetching CRM", e);
     }
@@ -510,16 +508,8 @@ function switchUsersTab(tab) {
     document.getElementById('users-excluidos').style.display = tab === 'excluidos' ? 'block' : 'none';
     
     document.getElementById('tab-users-ativos').classList.toggle('active-tab-btn', tab === 'ativos');
-    document.getElementById('tab-users-ativos').style.borderColor = tab === 'ativos' ? 'var(--primary)' : '';
-    document.getElementById('tab-users-ativos').style.color = tab === 'ativos' ? 'var(--primary)' : '';
-    
     document.getElementById('tab-users-suspensos').classList.toggle('active-tab-btn', tab === 'suspensos');
-    document.getElementById('tab-users-suspensos').style.borderColor = tab === 'suspensos' ? 'var(--primary)' : '';
-    document.getElementById('tab-users-suspensos').style.color = tab === 'suspensos' ? 'var(--primary)' : '';
-    
     document.getElementById('tab-users-excluidos').classList.toggle('active-tab-btn', tab === 'excluidos');
-    document.getElementById('tab-users-excluidos').style.borderColor = tab === 'excluidos' ? 'var(--primary)' : '';
-    document.getElementById('tab-users-excluidos').style.color = tab === 'excluidos' ? 'var(--primary)' : '';
     
     loadUsersData();
 }

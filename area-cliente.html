@@ -24,10 +24,10 @@
     <style>
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-    <div id="auth-loading" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:9999;display:flex;align-items:center;justify-content:center;">
-        <div style="text-align:center;">
-            <div style="width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#1e3a8a;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 15px;"></div>
-            <p style="color:#475569;font-size:0.9rem;">A verificar sessão...</p>
+    <div id="auth-loading" class="u-2f00b8">
+        <div class="u-539b04">
+            <div class="u-779d38"></div>
+            <p class="u-ee2d7e">A verificar sessão...</p>
         </div>
     </div>
     <header class="header">
@@ -36,7 +36,7 @@
             <nav class="nav-links">
                 <a href="index.html">Início</a>
                 <a href="sites.html">Criação de Sites</a>
-                <a href="area-cliente.html" class="active">Área de Cliente <i data-lucide="lock" style="width: 14px; height: 14px; display: inline-block;"></i></a>
+                <a href="area-cliente.html" class="active">Área de Cliente <i data-lucide="lock" class="u-b67934"></i></a>
             </nav>
             <div class="nav-cta"></div>
         </div>
@@ -44,126 +44,126 @@
 
     <main id="app-content" class="page-transition">
 
-    <section class="section-bg-sec text-center" style="padding-top: var(--spacing-xl); padding-bottom: var(--spacing-xl);">
-        <div class="container" style="max-width: 800px;">
-            <i data-lucide="lock" style="width: 64px; height: 64px; color: var(--color-primary); margin-bottom: 20px;"></i>
+    <section class="section-bg-sec text-center u-bec2da">
+        <div class="container u-7d701b">
+            <i data-lucide="lock" class="u-1d4884"></i>
             <h1>Guias e Recursos Reservados</h1>
-            <p style="font-size: 1.25rem;">Área exclusiva para clientes RM Conecta. Aceda aos nossos guias práticos e estratégias de crescimento.</p>
+            <p class="u-14fa87">Área exclusiva para clientes RM Conecta. Aceda aos nossos guias práticos e estratégias de crescimento.</p>
         </div>
     </section>
 
     <section>
         <div class="container">
-            <div style="max-width: 500px; margin: 0 auto; background: white; padding: var(--spacing-md); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); border: 1px solid #E2E8F0;">
+            <div class="u-1bb7e7">
                 
                 <!-- Toggle -->
                 <div id="toast-container" class="toast-container"></div>
 
     <!-- Password Reset Modal -->
-    <div id="reset-password-modal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-        <div style="background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h3 style="margin: 0; font-size: 1.25rem;">Recuperar Palavra-passe</h3>
-                <button type="button" id="btn-close-reset-modal" style="background: none; border: none; cursor: pointer; color: #64748b;">
+    <div id="reset-password-modal" class="u-5168d5">
+        <div class="u-43cd74">
+            <div class="u-1b4308">
+                <h3 class="u-074915">Recuperar Palavra-passe</h3>
+                <button type="button" id="btn-close-reset-modal" class="u-190178">
                     <i data-lucide="x"></i>
                 </button>
             </div>
-            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Insira o seu email abaixo. Enviaremos um link para definir uma nova palavra-passe.</p>
+            <p class="u-9aa9ed">Insira o seu email abaixo. Enviaremos um link para definir uma nova palavra-passe.</p>
             <form id="form-reset-password">
-                <div style="margin-bottom: 20px;">
-                    <label for="reset-email" style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
-                    <input type="email" id="reset-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                <div class="u-7002f9">
+                    <label for="reset-email" class="u-ea5019">Email</label>
+                    <input type="email" id="reset-email" class="u-2ae825" required>
                 </div>
-                <button type="submit" id="btn-submit-reset" class="btn btn-primary" style="width: 100%;">Enviar Link de Recuperação</button>
+                <button type="submit" id="btn-submit-reset" class="btn btn-primary u-199b6f">Enviar Link de Recuperação</button>
             </form>
         </div>
     </div>
-                <div id="toggle-container" style="display: flex; background: var(--color-bg-sec); border-radius: 50px; padding: 5px; margin-bottom: var(--spacing-md);">
-                    <button id="btn-login" style="flex: 1; padding: 10px; border: none; background: white; border-radius: 50px; font-weight: 600; color: var(--color-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease;">Iniciar Sessão</button>
-                    <button id="btn-register" style="flex: 1; padding: 10px; border: none; background: transparent; border-radius: 50px; font-weight: 600; color: var(--color-text-sec); cursor: pointer; transition: all 0.3s ease;">Criar Conta</button>
+                <div id="toggle-container" class="u-f3c8d3">
+                    <button id="btn-login" class="u-1f9fd3">Iniciar Sessão</button>
+                    <button id="btn-register" class="u-291238">Criar Conta</button>
                 </div>
 
                 <!-- Caixa Global de Erros (mantida como fallback, agora usamos modais) -->
-                <div id="auth-error-msg" style="display: none;"></div>
+                <div id="auth-error-msg" class="u-224b51"></div>
 
                 <!-- Formulário Iniciar Sessão -->
                 <div id="form-login">
-                    <h2 style="text-align: center; margin-bottom: var(--spacing-sm);">Bem-vindo de volta</h2>
+                    <h2 class="u-02e0b0">Bem-vindo de volta</h2>
                     <form id="form-login-submit">
-                        <div style="margin-bottom: 15px;">
-                            <label for="login-email" style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
-                            <input type="email" id="login-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <div class="u-b0473a">
+                            <label for="login-email" class="u-ea5019">Email</label>
+                            <input type="email" id="login-email" class="u-2ae825" required>
                         </div>
-                        <div style="margin-bottom: 20px; position: relative;">
-                            <label for="login-password" style="display: block; font-weight: 500; margin-bottom: 5px;">Palavra-passe</label>
-                            <input type="password" id="login-password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
-                            <button type="button" onclick="togglePasswordVisibility('login-password')" style="position: absolute; right: 10px; top: 38px; border: none; background: none; cursor: pointer; color: #64748b;">
-                                <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                        <div class="u-b60f1f">
+                            <label for="login-password" class="u-ea5019">Palavra-passe</label>
+                            <input type="password" id="login-password" class="u-2ae825" required>
+                            <button type="button" onclick="togglePasswordVisibility('login-password')" class="u-ea8dbc">
+                                <i data-lucide="eye" class="u-b53b23"></i>
                             </button>
                         </div>
-                        <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <input type="checkbox" id="keep-logged-login" style="width: auto;">
-                                <label for="keep-logged-login" style="margin: 0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Manter sessão iniciada</label>
+                        <div class="u-23eb5a">
+                            <div class="u-bd9db1">
+                                <input type="checkbox" id="keep-logged-login" class="u-dc251b">
+                                <label for="keep-logged-login" class="u-d1d94e">Manter sessão iniciada</label>
                             </div>
-                            <a href="#" id="btn-forgot-password" style="font-size: 0.85rem; color: var(--primary); text-decoration: none;">Esqueci-me da palavra-passe</a>
+                            <a href="#" id="btn-forgot-password" class="u-9f34c0">Esqueci-me da palavra-passe</a>
                         </div>
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar na Área de Cliente &rarr;</button>
+                        <button type="submit" class="btn btn-primary u-199b6f">Entrar na Área de Cliente &rarr;</button>
                     </form>
                 </div>
 
                 <!-- Formulário Criar Conta (Oculto por defeito) -->
-                <div id="form-register" style="display: none;">
-                    <h2 style="text-align: center; margin-bottom: var(--spacing-sm);">Junte-se a Nós</h2>
+                <div id="form-register" class="u-224b51">
+                    <h2 class="u-02e0b0">Junte-se a Nós</h2>
                     <form id="form-register-submit">
-                        <div style="margin-bottom: 15px;">
-                            <label for="register-name" style="display: block; font-weight: 500; margin-bottom: 5px;">Nome Completo</label>
-                            <input type="text" id="register-name" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <div class="u-b0473a">
+                            <label for="register-name" class="u-ea5019">Nome Completo</label>
+                            <input type="text" id="register-name" class="u-2ae825" required>
                         </div>
-                        <div style="margin-bottom: 15px;">
-                            <label for="register-email" style="display: block; font-weight: 500; margin-bottom: 5px;">Email</label>
-                            <input type="email" id="register-email" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
+                        <div class="u-b0473a">
+                            <label for="register-email" class="u-ea5019">Email</label>
+                            <input type="email" id="register-email" class="u-2ae825" required>
                         </div>
-                        <div style="margin-bottom: 20px; position: relative;">
-                            <label for="register-password" style="display: block; font-weight: 500; margin-bottom: 5px;">Palavra-passe</label>
-                            <input type="password" id="register-password" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px;" required>
-                            <button type="button" onclick="togglePasswordVisibility('register-password')" style="position: absolute; right: 10px; top: 38px; border: none; background: none; cursor: pointer; color: #64748b;">
-                                <i data-lucide="eye" style="width: 20px; height: 20px;"></i>
+                        <div class="u-b60f1f">
+                            <label for="register-password" class="u-ea5019">Palavra-passe</label>
+                            <input type="password" id="register-password" class="u-2ae825" required>
+                            <button type="button" onclick="togglePasswordVisibility('register-password')" class="u-ea8dbc">
+                                <i data-lucide="eye" class="u-b53b23"></i>
                             </button>
                         </div>
-                        <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" id="keep-logged-register" style="width: auto;">
-                            <label for="keep-logged-register" style="margin: 0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Manter sessão iniciada</label>
+                        <div class="u-d70988">
+                            <input type="checkbox" id="keep-logged-register" class="u-dc251b">
+                            <label for="keep-logged-register" class="u-d1d94e">Manter sessão iniciada</label>
                         </div>
-                        <button type="submit" class="btn btn-accent" style="width: 100%;">Criar Conta &rarr;</button>
+                        <button type="submit" class="btn btn-accent u-199b6f">Criar Conta &rarr;</button>
                     </form>
                 </div>
 
                 <!-- Visão de Sessão Iniciada (Oculta por defeito) -->
-                <div id="logged-in-view" style="display: none; text-align: center;">
-                    <div style="background: rgba(59, 130, 246, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                        <i data-lucide="user-check" style="width: 40px; height: 40px; color: var(--color-primary);"></i>
+                <div id="logged-in-view" class="u-e7a7d9">
+                    <div class="u-46b9dd">
+                        <i data-lucide="user-check" class="u-0467cf"></i>
                     </div>
-                    <h2 style="margin-bottom: 10px; text-align: center;">
+                    <h2 class="u-8d507a">
                         Olá, <span id="user-name-display">Cliente</span>!
                     </h2>
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <button id="btn-edit-name" class="btn btn-outline" style="padding: 6px 14px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 5px; border-radius: 50px;" aria-label="Mudar o nome de perfil">
-                            <i data-lucide="edit-2" style="width: 14px; height: 14px;"></i> Mudar Nome
+                    <div class="u-332621">
+                        <button id="btn-edit-name" class="btn btn-outline u-283edb" aria-label="Mudar o nome de perfil">
+                            <i data-lucide="edit-2" class="u-2d0821"></i> Mudar Nome
                         </button>
                     </div>
-                    <p id="user-plan-display" style="color: var(--color-text-sec); margin-bottom: 20px;">A sua área reservada está ativa.</p>
+                    <p id="user-plan-display" class="u-545f7d">A sua área reservada está ativa.</p>
 
                     <!-- Recursos Dinâmicos -->
-                    <div id="recursos-container" style="margin-bottom: 25px;"></div>
+                    <div id="recursos-container" class="u-ffbeea"></div>
 
-                    <button id="btn-logout" class="btn btn-outline" style="width: 100%; margin-bottom: 15px;" aria-label="Terminar sessão">Terminar Sessão</button>
-                    <button id="btn-delete-account" class="btn-danger-solid" style="width: 100%;" aria-label="Encerrar conta definitivamente">
-                        <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i> Encerrar Conta Definitivamente
+                    <button id="btn-logout" class="btn btn-outline u-e3e8d4" aria-label="Terminar sessão">Terminar Sessão</button>
+                    <button id="btn-delete-account" class="btn-danger-solid u-199b6f" aria-label="Encerrar conta definitivamente">
+                        <i data-lucide="trash-2" class="u-052ff0"></i> Encerrar Conta Definitivamente
                     </button>
                 </div>
 
-                <div id="footer-note" style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--color-text-sec);">
+                <div id="footer-note" class="u-0751a0">
                     O nível de acesso (Básico, Intermédio ou VIP) depende do seu Plano de Suporte Mensal.
                 </div>
             </div>
@@ -171,14 +171,14 @@
     </section>
 
     <!-- Custom Modal para Alertas Profissionais -->
-    <div id="custom-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease;">
-        <div style="background: white; padding: 30px; border-radius: var(--border-radius-lg); max-width: 400px; width: 90%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);" id="modal-box">
-            <div id="modal-icon-container" style="margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; width: 60px; height: 60px; border-radius: 50%;">
-                <i id="modal-icon" data-lucide="alert-triangle" style="width: 30px; height: 30px;"></i>
+    <div id="custom-modal" class="u-66b79f">
+        <div class="u-ae0287" id="modal-box">
+            <div id="modal-icon-container" class="u-de2fd5">
+                <i id="modal-icon" data-lucide="alert-triangle" class="u-df0cd2"></i>
             </div>
-            <h3 id="modal-title" style="margin-bottom: 10px; font-size: 1.5rem;">Atenção</h3>
-            <p id="modal-desc" style="color: var(--color-text-sec); margin-bottom: 25px; line-height: 1.5;"></p>
-            <div id="modal-actions" style="display: flex; gap: 10px; justify-content: center;"></div>
+            <h3 id="modal-title" class="u-4ae7f0">Atenção</h3>
+            <p id="modal-desc" class="u-e17a77"></p>
+            <div id="modal-actions" class="u-4647c7"></div>
         </div>
     </div>
 
@@ -222,7 +222,7 @@
                     'Ocorreu um Problema',
                     msg,
                     'warning',
-                    '<button class="btn btn-primary modal-close" data-action="ok" style="width: 100%;">Entendido</button>'
+                    '<button class="btn btn-primary modal-close" data-action="ok" class="u-199b6f">Entendido</button>'
                 );
             };
 
@@ -342,9 +342,9 @@
                             'Email Já Registado',
                             'Este endereço de email já tem uma conta associada. Inicie sessão com os seus dados ou utilize outro email para criar uma nova conta.',
                             'warning',
-                            `<div style="display:flex;gap:10px;width:100%;">
-                                <button class="btn btn-outline modal-close" data-action="cancel" style="flex:1;">Fechar</button>
-                                <button class="btn btn-primary modal-close" data-action="login" style="flex:1;">Ir para Login</button>
+                            `<div class="u-447424">
+                                <button class="btn btn-outline modal-close" data-action="cancel" class="u-d5e8c5">Fechar</button>
+                                <button class="btn btn-primary modal-close" data-action="login" class="u-d5e8c5">Ir para Login</button>
                             </div>`,
                             (action) => {
                                 if (action === 'login') {
@@ -475,16 +475,16 @@
                         userPlano = doc.data().plano;
                     }
                     const planBadgeColor = userPlano === 'VIP' ? '#d97706' : userPlano === 'Intermédio' ? '#3b82f6' : userPlano === 'Básico' ? '#22c55e' : '#94a3b8';
-                    planDisplay.innerHTML = `Plano atual: <span style="display: inline-block; background: ${planBadgeColor}; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${userPlano}</span>`;
+                    planDisplay.innerHTML = `Plano atual: <span class="u-c0b53b">${userPlano}</span>`;
 
                     // Carregar recursos filtrados pelo nível do plano
                     const userLevel = planOrder[userPlano] || 0;
                     if (userLevel === 0) {
                         recursosContainer.innerHTML = `
-                            <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
-                                <i data-lucide="book-open" style="width: 32px; height: 32px; color: var(--color-text-light); margin-bottom: 10px;"></i>
-                                <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">Subscreva um plano mensal para desbloquear guias e recursos exclusivos.</p>
-                                <a href="sites.html" class="btn btn-primary" style="margin-top: 15px; padding: 8px 20px; font-size: 0.85rem;">Ver Planos</a>
+                            <div class="u-3713a9">
+                                <i data-lucide="book-open" class="u-6cf287"></i>
+                                <p class="u-1f91e4">Subscreva um plano mensal para desbloquear guias e recursos exclusivos.</p>
+                                <a href="sites.html" class="btn btn-primary u-7533dd">Ver Planos</a>
                             </div>
                         `;
                         lucide.createIcons();
@@ -498,8 +498,8 @@
                     db.collection('recursos').where('nivelMinimo', 'in', allowedLevels).get().then(snapshot => {
                         if (snapshot.empty) {
                             recursosContainer.innerHTML = `
-                                <div style="background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 20px; text-align: center; border: 1px dashed #cbd5e1;">
-                                    <p style="margin: 0; font-size: 0.9rem; color: var(--color-text-sec);">Ainda não existem recursos para o seu nível de plano.</p>
+                                <div class="u-3713a9">
+                                    <p class="u-1f91e4">Ainda não existem recursos para o seu nível de plano.</p>
                                 </div>
                             `;
                             return;
@@ -507,11 +507,11 @@
                         const recursos = snapshot.docs.map(d => d.data());
 
                         recursosContainer.innerHTML = `
-                            <h3 style="font-size: 1rem; margin-bottom: 12px; color: var(--color-text-main);"><i data-lucide="book-open" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 5px;"></i> Guias & Recursos</h3>
+                            <h3 class="u-25a897"><i data-lucide="book-open" class="u-647b03"></i> Guias & Recursos</h3>
                             ${recursos.map(r => `
-                                <a href="${r.url}" target="_blank" rel="noopener noreferrer" style="display: block; background: var(--color-bg-sec); border-radius: var(--border-radius-sm); padding: 14px 16px; margin-bottom: 8px; border: 1px solid #e2e8f0; transition: all 0.2s ease; text-decoration: none;" onmouseover="this.style.borderColor='var(--color-primary-light)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.transform='none'">
-                                    <strong style="color: var(--color-text-main); font-size: 0.95rem;">${r.titulo}</strong>
-                                    <p style="margin: 4px 0 0; font-size: 0.8rem; color: var(--color-text-sec);">${r.descricao || ''}</p>
+                                <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="u-2b8bf3" onmouseover="this.style.borderColor='var(--color-primary-light)';this.style.transform='translateX(4px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.transform='none'">
+                                    <strong class="u-c5652c">${r.titulo}</strong>
+                                    <p class="u-471a59">${r.descricao || ''}</p>
                                 </a>
                             `).join('')}
                         `;
@@ -535,7 +535,7 @@
                 const email = document.getElementById('register-email').value;
                 const password = document.getElementById('register-password').value;
 
-                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A criar...';
+                btn.innerHTML = '<i class="loader u-f960c3"></i> A criar...';
                 btn.disabled = true;
 
                 handleRegister(email, password, name, keepLogged, btn, originalText);
@@ -550,7 +550,7 @@
                 const email = document.getElementById('login-email').value;
                 const password = document.getElementById('login-password').value;
 
-                btn.innerHTML = '<i class="loader" style="display:inline-block; width:16px; height:16px; border-width:2px; vertical-align:middle; margin-right:8px;"></i> A entrar...';
+                btn.innerHTML = '<i class="loader u-f960c3"></i> A entrar...';
                 btn.disabled = true;
 
                 handleLogin(email, password, keepLogged, btn, originalText);
@@ -564,10 +564,10 @@
                     const currentName = user && user.displayName ? user.displayName : 'Cliente';
                     
                     showModal('Mudar Nome', 'Qual é o nome que gostaria de usar na sua conta?', 'info', `
-                        <input type="text" id="modal-input-name" value="${currentName}" style="width: 100%; padding: 16px 20px; border: 2px solid #cbd5e1; border-radius: 12px; margin-bottom: 15px; text-align: center; font-size: 1.1rem; font-weight: 500; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#cbd5e1'" autocomplete="off">
-                        <div style="display: flex; gap: 10px; width: 100%;">
-                            <button class="btn btn-outline modal-close" data-action="cancel" style="flex: 1;">Cancelar</button>
-                            <button class="btn btn-primary modal-close" data-action="confirm" style="flex: 1;">Guardar</button>
+                        <input type="text" id="modal-input-name" value="${currentName}" class="u-2f3ec4" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#cbd5e1'" autocomplete="off">
+                        <div class="u-451ecc">
+                            <button class="btn btn-outline modal-close" data-action="cancel" class="u-49cdf8">Cancelar</button>
+                            <button class="btn btn-primary modal-close" data-action="confirm" class="u-49cdf8">Guardar</button>
                         </div>
                     `, (action) => {
                         if (action === 'confirm') {
@@ -593,15 +593,15 @@
             if (btnDeleteAccount) {
                 btnDeleteAccount.addEventListener('click', () => {
                     showModal('Encerrar Conta', 'Tem a certeza absoluta? Esta ação não pode ser revertida e perderá o acesso imediato. Não poderá iniciar sessão com os mesmos dados novamente.', 'danger', `
-                        <button class="btn btn-outline modal-close" data-action="cancel" style="flex: 1;">Cancelar</button>
-                        <button class="btn-danger-solid modal-close" data-action="confirm" style="flex: 1;">Sim, Apagar Conta</button>
+                        <button class="btn btn-outline modal-close" data-action="cancel" class="u-49cdf8">Cancelar</button>
+                        <button class="btn-danger-solid modal-close" data-action="confirm" class="u-49cdf8">Sim, Apagar Conta</button>
                     `, (action) => {
                         if(action === 'confirm') {
                             const user = auth.currentUser;
                             if(user) {
                                 user.delete().then(() => {
                                     showModal('Conta Encerrada', 'A sua conta e os seus dados foram eliminados permanentemente do nosso sistema.', 'success', `
-                                        <button class="btn btn-primary modal-close" data-action="ok" style="width: 100%;">Voltar ao Início</button>
+                                        <button class="btn btn-primary modal-close" data-action="ok" class="u-199b6f">Voltar ao Início</button>
                                     `, () => {
                                         window.location.reload();
                                     });
@@ -698,7 +698,7 @@
                     const email = document.getElementById('reset-email').value;
                     const btnSubmit = document.getElementById('btn-submit-reset');
                     btnSubmit.disabled = true;
-                    btnSubmit.innerHTML = '<div class="loader" style="width: 20px; height: 20px; border-width: 2px; margin: 0 auto;"></div>';
+                    btnSubmit.innerHTML = '<div class="loader u-1998ca"></div>';
 
                     auth.sendPasswordResetEmail(email)
                         .then(() => {
