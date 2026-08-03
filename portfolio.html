@@ -95,6 +95,38 @@
                 resultado: 'Top 3 no Google local. Sistema de marcações gerou +50 agendamentos.',
                 imagemUrl: 'images/clinic_entrance_1784624057869.jpg',
                 ordem: 2
+            },
+            {
+                nome: 'Auto Viseu Premium',
+                tipo: 'Stand de Automóveis',
+                desafio: 'Falta de confiança online e dificuldade em expor o stock atualizado.',
+                resultado: 'Aumento de 60% nos pedidos de test-drive. Integração de catálogo dinâmico.',
+                imagemUrl: 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                ordem: 3
+            },
+            {
+                nome: 'Clínica Dentária Sorriso Mais',
+                tipo: 'Clínica Dentária',
+                desafio: 'Pacientes não encontravam a clínica nas pesquisas do Google Maps.',
+                resultado: 'Perfil Google otimizado e novo site resultaram em +30 consultas por semana.',
+                imagemUrl: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                ordem: 4
+            },
+            {
+                nome: 'Gás & Pichelaria Rápida',
+                tipo: 'Serviços ao Domicílio',
+                desafio: 'Concorrência feroz e dependência de anúncios caros nas Páginas Amarelas.',
+                resultado: 'Liderança no SEO Local. Recebem chamadas diárias apenas pelo tráfego orgânico.',
+                imagemUrl: 'https://images.unsplash.com/photo-1581092921461-7031e4bfb83e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                ordem: 5
+            },
+            {
+                nome: 'Boutique Maria',
+                tipo: 'Loja de Roupa',
+                desafio: 'Queriam vender para todo o país mas só tinham loja física.',
+                resultado: 'Loja online lançada em 15 dias. Faturação duplicou no primeiro trimestre.',
+                imagemUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+                ordem: 6
             }
         ];
 
@@ -121,9 +153,7 @@
             `).join('');
         }
 
-        // Carregar do Firestore, misturando com os dados locais
-        // Wrap in IIFE to keep scope clean and execute immediately
-        (function initPortfolio() {
+        function carregarFirebase() {
             if (typeof db !== 'undefined') {
                 db.collection('projetos').orderBy('ordem', 'asc').get()
                     .then(snapshot => {
@@ -132,7 +162,6 @@
                             const projetosNovos = snapshot.docs.map(doc => doc.data());
                             projetosParaMostrar = projetosParaMostrar.concat(projetosNovos);
                         }
-                        
                         projetosParaMostrar.sort((a, b) => (a.ordem || 99) - (b.ordem || 99));
                         renderProjetos(projetosParaMostrar);
                     })
@@ -143,7 +172,14 @@
             } else {
                 renderProjetos(fallbackProjetos);
             }
-        })();
+        }
+
+        // Executar imediatamente se via SPA (db já existe), ou aguardar carregamento da página se acesso direto
+        if (typeof db !== 'undefined') {
+            carregarFirebase();
+        } else {
+            window.addEventListener('load', carregarFirebase);
+        }
         </script>
     </main>
 
