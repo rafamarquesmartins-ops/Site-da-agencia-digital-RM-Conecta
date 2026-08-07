@@ -18,7 +18,7 @@
     <link rel="canonical" href="https://rafamarquesmartins-ops.github.io/Site-da-agencia-digital-RM-Conecta/area-cliente">
     <link rel="stylesheet" href="css/style.css">
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 </head>
 <body>
     <style>
@@ -222,7 +222,7 @@
                     'Ocorreu um Problema',
                     msg,
                     'warning',
-                    '<button class="btn btn-primary modal-close" data-action="ok" class="u-199b6f">Entendido</button>'
+                    '<button class="btn btn-primary modal-close u-199b6f" data-action="ok">Entendido</button>'
                 );
             };
 
@@ -343,8 +343,8 @@
                             'Este endereço de email já tem uma conta associada. Inicie sessão com os seus dados ou utilize outro email para criar uma nova conta.',
                             'warning',
                             `<div class="u-447424">
-                                <button class="btn btn-outline modal-close" data-action="cancel" class="u-d5e8c5">Fechar</button>
-                                <button class="btn btn-primary modal-close" data-action="login" class="u-d5e8c5">Ir para Login</button>
+                                <button class="btn btn-outline modal-close u-d5e8c5" data-action="cancel">Fechar</button>
+                                <button class="btn btn-primary modal-close u-d5e8c5" data-action="login">Ir para Login</button>
                             </div>`,
                             (action) => {
                                 if (action === 'login') {
@@ -566,8 +566,8 @@
                     showModal('Mudar Nome', 'Qual é o nome que gostaria de usar na sua conta?', 'info', `
                         <input type="text" id="modal-input-name" value="${currentName}" class="u-2f3ec4" onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor='#cbd5e1'" autocomplete="off">
                         <div class="u-451ecc">
-                            <button class="btn btn-outline modal-close" data-action="cancel" class="u-49cdf8">Cancelar</button>
-                            <button class="btn btn-primary modal-close" data-action="confirm" class="u-49cdf8">Guardar</button>
+                            <button class="btn btn-outline modal-close u-49cdf8" data-action="cancel">Cancelar</button>
+                            <button class="btn btn-primary modal-close u-49cdf8" data-action="confirm">Guardar</button>
                         </div>
                     `, (action) => {
                         if (action === 'confirm') {
@@ -593,15 +593,15 @@
             if (btnDeleteAccount) {
                 btnDeleteAccount.addEventListener('click', () => {
                     showModal('Encerrar Conta', 'Tem a certeza absoluta? Esta ação não pode ser revertida e perderá o acesso imediato. Não poderá iniciar sessão com os mesmos dados novamente.', 'danger', `
-                        <button class="btn btn-outline modal-close" data-action="cancel" class="u-49cdf8">Cancelar</button>
-                        <button class="btn-danger-solid modal-close" data-action="confirm" class="u-49cdf8">Sim, Apagar Conta</button>
+                        <button class="btn btn-outline modal-close u-49cdf8" data-action="cancel">Cancelar</button>
+                        <button class="btn-danger-solid modal-close u-49cdf8" data-action="confirm">Sim, Apagar Conta</button>
                     `, (action) => {
                         if(action === 'confirm') {
                             const user = auth.currentUser;
                             if(user) {
                                 user.delete().then(() => {
                                     showModal('Conta Encerrada', 'A sua conta e os seus dados foram eliminados permanentemente do nosso sistema.', 'success', `
-                                        <button class="btn btn-primary modal-close" data-action="ok" class="u-199b6f">Voltar ao Início</button>
+                                        <button class="btn btn-primary modal-close u-199b6f" data-action="ok">Voltar ao Início</button>
                                     `, () => {
                                         window.location.reload();
                                     });

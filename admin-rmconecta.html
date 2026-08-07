@@ -15,7 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="js/firebase-config.js"></script>
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 </head>
 <body>
     <!-- Sidebar -->
@@ -85,7 +85,7 @@
                 <div class="table-container">
                     <div class="u-6c992c">
                         <h3 class="u-40a221">Leads Recentes</h3>
-                        <select class="form-control" id="dashboardLeadsLimit" class="u-f7e916">
+                        <select class="form-control u-f7e916" id="dashboardLeadsLimit">
                             <option value="5">Últimas 5</option>
                             <option value="10">Últimas 10</option>
                             <option value="25">Últimas 25</option>
@@ -116,7 +116,7 @@
                     <h2>Gestão de Leads (CRM)</h2>
                     <div class="u-61e957">
                         <div class="u-a58dd6">
-                            <button class="btn btn-outline active-tab-btn" onclick="switchCrmTab('ativos')" id="tab-crm-ativos" class="u-eccf73">Leads Ativos</button>
+                            <button class="btn btn-outline active-tab-btn u-eccf73" onclick="switchCrmTab('ativos')" id="tab-crm-ativos">Leads Ativos</button>
                             <button class="btn btn-outline" onclick="switchCrmTab('excluidos')" id="tab-crm-excluidos">Leads Excluídos</button>
                         </div>
                         <div class="u-800a82">
@@ -146,7 +146,7 @@
                     </table>
                 </div>
 
-                <div class="table-container" id="crm-excluidos" class="u-224b51">
+                <div class="table-container u-224b51" id="crm-excluidos">
                     <table>
                         <thead>
                             <tr>
@@ -173,7 +173,7 @@
                 <div class="section-header u-5589a8">
                     <h2>Utilizadores</h2>
                     <div class="u-63c1df">
-                        <button class="btn btn-outline active-tab-btn" onclick="switchUsersTab('ativos')" id="tab-users-ativos" class="u-eccf73">Ativos</button>
+                        <button class="btn btn-outline active-tab-btn u-eccf73" onclick="switchUsersTab('ativos')" id="tab-users-ativos">Ativos</button>
                         <button class="btn btn-outline" onclick="switchUsersTab('suspensos')" id="tab-users-suspensos">Suspensos</button>
                         <button class="btn btn-outline" onclick="switchUsersTab('excluidos')" id="tab-users-excluidos">Excluídos</button>
                     </div>
