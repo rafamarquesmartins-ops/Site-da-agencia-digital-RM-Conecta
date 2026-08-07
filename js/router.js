@@ -147,6 +147,13 @@ async function navigateTo(url, push = true) {
                 const hash = url.split('#')[1];
                 const target = document.getElementById(hash);
                 if (target) {
+                    // Auto-open FAQ accordion if target is a faq-item
+                    if(target.classList.contains('faq-item')) {
+                        const answer = target.querySelector('.faq-answer');
+                        const icon = target.querySelector('.faq-question i');
+                        if(answer) answer.style.display = 'block';
+                        if(icon) { icon.style.transform = 'rotate(180deg)'; icon.style.transition = 'transform 0.3s ease'; }
+                    }
                     // Small delay to allow DOM render
                     setTimeout(() => {
                         target.scrollIntoView({ behavior: 'smooth', block: 'center' });

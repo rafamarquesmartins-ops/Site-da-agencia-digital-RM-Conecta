@@ -20,6 +20,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Auto-open FAQ item if page is loaded directly with a hash (e.g. faq.html#apoios)
+    if(window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        const target = document.getElementById(hash);
+        if(target && target.classList.contains('faq-item')) {
+            const answer = target.querySelector('.faq-answer');
+            const icon = target.querySelector('.faq-question i');
+            if(answer) answer.style.display = 'block';
+            if(icon) { icon.style.transform = 'rotate(180deg)'; icon.style.transition = 'transform 0.3s ease'; }
+            setTimeout(() => { target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+        }
+    }
+
     // 1. Initialize Lucide Icons
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();

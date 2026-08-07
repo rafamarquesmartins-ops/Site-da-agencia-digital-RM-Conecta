@@ -74,7 +74,8 @@
                     <label for="reset-email" class="u-ea5019">Email</label>
                     <input type="email" id="reset-email" class="u-2ae825" required>
                 </div>
-                <button type="submit" id="btn-submit-reset" class="btn btn-primary u-199b6f">Enviar Link de Recuperação</button>
+                <button type="submit" id="btn-submit-reset" class="btn btn-primary u-199b6f" style="width: 100%;">Enviar Link de Recuperação</button>
+                <div id="reset-feedback" class="reset-feedback"></div>
             </form>
         </div>
     </div>
@@ -453,7 +454,7 @@
                 document.getElementById('toggle-container').style.display = 'none';
                 footerNote.style.display = 'none';
                 
-                loggedInView.style.display = 'block';
+                loggedInView.style.display = 'flex';
                 userNameDisplay.innerText = name.split(' ')[0]; // Show first name
                 lucide.createIcons();
             };
@@ -678,10 +679,13 @@
             const modalReset = document.getElementById('reset-password-modal');
             const btnCloseReset = document.getElementById('btn-close-reset-modal');
             const formReset = document.getElementById('form-reset-password');
+            const resetFeedback = document.getElementById('reset-feedback');
             
             if(btnForgot && modalReset) {
                 btnForgot.addEventListener('click', (e) => {
                     e.preventDefault();
+                    // Reset feedback state when opening
+                    if(resetFeedback) { resetFeedback.className = 'reset-feedback'; resetFeedback.textContent = ''; }
                     modalReset.style.display = 'flex';
                     // Auto-fill with the email if they already typed it
                     const loginEmail = document.getElementById('login-email').value;
@@ -695,30 +699,49 @@
                 });
             }
 
+            // Click outside modal to close
+            if(modalReset) {
+                modalReset.addEventListener('click', (e) => {
+                    if(e.target === modalReset) modalReset.style.display = 'none';
+                });
+            }
+
             if(formReset) {
                 formReset.addEventListener('submit', (e) => {
                     e.preventDefault();
                     const email = document.getElementById('reset-email').value;
                     const btnSubmit = document.getElementById('btn-submit-reset');
+                    const originalBtnText = btnSubmit.innerHTML;
                     btnSubmit.disabled = true;
-                    btnSubmit.innerHTML = '<div class="loader u-1998ca"></div>';
+                    btnSubmit.innerHTML = 'A enviar...';
+                    if(resetFeedback) { resetFeedback.className = 'reset-feedback'; resetFeedback.textContent = ''; }
 
                     auth.sendPasswordResetEmail(email)
                         .then(() => {
-                            modalReset.style.display = 'none';
-                            showSuccess('Link de recuperação enviado com sucesso. Verifique a sua caixa de entrada (e spam).');
+                            if(resetFeedback) {
+                                resetFeedback.className = 'reset-feedback success';
+                                resetFeedback.innerHTML = '<strong>✅ Link enviado com sucesso!</strong> Verifique a sua caixa de entrada (e pasta de spam).';
+                            }
+                            formReset.reset();
                         })
                         .catch((error) => {
                             console.error('Error password reset:', error);
+                            let msg = 'Ocorreu um erro ao enviar o link. Tente novamente mais tarde.';
                             if (error.code === 'auth/user-not-found') {
-                                showError('Não existe nenhuma conta com esse email.');
-                            } else {
-                                showError('Ocorreu um erro ao enviar o link. Tente novamente mais tarde.');
+                                msg = 'Não existe nenhuma conta com esse email.';
+                            } else if (error.code === 'auth/invalid-email') {
+                                msg = 'O endereço de email introduzido não é válido.';
+                            } else if (error.code === 'auth/too-many-requests') {
+                                msg = 'Demasiadas tentativas. Aguarde alguns minutos antes de tentar novamente.';
+                            }
+                            if(resetFeedback) {
+                                resetFeedback.className = 'reset-feedback error';
+                                resetFeedback.innerHTML = '<strong>❌ Erro:</strong> ' + msg;
                             }
                         })
                         .finally(() => {
                             btnSubmit.disabled = false;
-                            btnSubmit.innerHTML = 'Enviar Link de Recuperação';
+                            btnSubmit.innerHTML = originalBtnText;
                         });
                 });
             }
