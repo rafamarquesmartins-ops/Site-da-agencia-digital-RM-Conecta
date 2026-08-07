@@ -43,9 +43,9 @@ function initRouter() {
                 }
                 
                 setTimeout(() => {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     setTimeout(() => {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }, 500);
                 }, 50);
                 history.pushState(null, '', url);
@@ -149,10 +149,10 @@ async function navigateTo(url, push = true) {
                 if (target) {
                     // Small delay to allow DOM render
                     setTimeout(() => {
-                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         // Second delay for after images potentially load
                         setTimeout(() => {
-                            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }, 500);
                         
                         if(target.classList.contains('plan-card') || target.closest('.plan-card')) {

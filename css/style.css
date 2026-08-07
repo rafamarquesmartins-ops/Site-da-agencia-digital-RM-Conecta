@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Cores - Refinadas para um look mais premium */
@@ -591,7 +591,18 @@ label {
 .u-3e9952 { margin: 0; font-size: 0.85rem; color: var(--color-text-sec); margin-top: 5px; }
 .u-3313e5 { background: white; padding: var(--spacing-md); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); border: 1px solid #E2E8F0; }
 .u-40107b { margin-bottom: var(--spacing-sm); }
-.u-2eb524 { display: none; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; }
+.u-2eb524 { display: none; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 1rem; text-align: center; }
+.u-ef9066 { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.u-806963 { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.u-66b79f { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; transition: opacity 0.3s ease; }
+.u-66b79f.active { display: flex; opacity: 1; }
+.u-ae0287 { background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); transform: translateY(20px); transition: transform 0.3s ease; text-align: center; }
+.u-66b79f.active .u-ae0287 { transform: translateY(0); }
+.u-4ae7f0 { font-size: 1.25rem; font-weight: bold; margin-bottom: 10px; color: var(--color-text-main); }
+.u-e17a77 { color: var(--color-text-sec); margin-bottom: 20px; font-size: 0.95rem; line-height: 1.5; }
+.u-de2fd5 { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: #fee2e2; color: #ef4444; margin-bottom: 15px; }
+.u-4647c7 { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+#toggle-container button.active { background: white !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1); color: var(--color-primary); font-weight: 500; }
 .u-3c43c4 { width: 100%; padding-top: 12px; padding-bottom: 12px; padding-right: 12px; border: 1px solid #cbd5e1; border-radius: 8px; }
 .u-b5ea6f { color: #ef4444; font-size: 0.85rem; display: none; margin-top: 5px; }
 .u-4af31f { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; }

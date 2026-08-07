@@ -78,17 +78,17 @@
             </form>
         </div>
     </div>
-                <div id="toggle-container" class="u-f3c8d3">
-                    <button id="btn-login" class="u-1f9fd3">Iniciar Sessão</button>
-                    <button id="btn-register" class="u-291238">Criar Conta</button>
+                <div id="toggle-container" class="u-f3c8d3" style="display: flex; background: var(--color-bg-sec); border-radius: 50px; padding: 5px; margin: 0 auto var(--spacing-md); max-width: 300px; justify-content: space-between;">
+                    <button id="btn-login" class="u-1f9fd3" style="flex: 1; padding: 8px 16px; border-radius: 50px; border: none; background: transparent; cursor: pointer; transition: all 0.2s;">Iniciar Sessão</button>
+                    <button id="btn-register" class="u-291238" style="flex: 1; padding: 8px 16px; border-radius: 50px; border: none; background: transparent; cursor: pointer; transition: all 0.2s;">Criar Conta</button>
                 </div>
 
                 <!-- Caixa Global de Erros (mantida como fallback, agora usamos modais) -->
                 <div id="auth-error-msg" class="u-224b51"></div>
 
                 <!-- Formulário Iniciar Sessão -->
-                <div id="form-login">
-                    <h2 class="u-02e0b0">Bem-vindo de volta</h2>
+                <div id="form-login" style="max-width: 400px; margin: 0 auto; text-align: left;">
+                    <h2 class="u-02e0b0" style="text-align: center;">Bem-vindo de volta</h2>
                     <form id="form-login-submit">
                         <div class="u-b0473a">
                             <label for="login-email" class="u-ea5019">Email</label>
@@ -108,13 +108,13 @@
                             </div>
                             <a href="#" id="btn-forgot-password" class="u-9f34c0">Esqueci-me da palavra-passe</a>
                         </div>
-                        <button type="submit" class="btn btn-primary u-199b6f">Entrar na Área de Cliente &rarr;</button>
+                        <button type="submit" class="btn btn-primary u-199b6f" style="width: 100%;">Entrar na Área de Cliente &rarr;</button>
                     </form>
                 </div>
 
                 <!-- Formulário Criar Conta (Oculto por defeito) -->
-                <div id="form-register" class="u-224b51">
-                    <h2 class="u-02e0b0">Junte-se a Nós</h2>
+                <div id="form-register" class="u-224b51" style="max-width: 400px; margin: 0 auto; text-align: left;">
+                    <h2 class="u-02e0b0" style="text-align: center;">Junte-se a Nós</h2>
                     <form id="form-register-submit">
                         <div class="u-b0473a">
                             <label for="register-name" class="u-ea5019">Nome Completo</label>
@@ -135,16 +135,16 @@
                             <input type="checkbox" id="keep-logged-register" class="u-dc251b">
                             <label for="keep-logged-register" class="u-d1d94e">Manter sessão iniciada</label>
                         </div>
-                        <button type="submit" class="btn btn-accent u-199b6f">Criar Conta &rarr;</button>
+                        <button type="submit" class="btn btn-accent u-199b6f" style="width: 100%;">Criar Conta &rarr;</button>
                     </form>
                 </div>
 
                 <!-- Visão de Sessão Iniciada (Oculta por defeito) -->
-                <div id="logged-in-view" class="u-e7a7d9">
+                <div id="logged-in-view" class="u-e7a7d9" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 20px;">
                     <div class="u-46b9dd">
                         <i data-lucide="user-check" class="u-0467cf"></i>
                     </div>
-                    <h2 class="u-8d507a">
+                    <h2 class="u-8d507a" style="margin-bottom: 0;">
                         Olá, <span id="user-name-display">Cliente</span>!
                     </h2>
                     <div class="u-332621">
@@ -152,15 +152,18 @@
                             <i data-lucide="edit-2" class="u-2d0821"></i> Mudar Nome
                         </button>
                     </div>
-                    <p id="user-plan-display" class="u-545f7d">A sua área reservada está ativa.</p>
+                    <p id="user-plan-display" class="u-545f7d" style="margin-top: -10px;">A sua área reservada está ativa.</p>
 
                     <!-- Recursos Dinâmicos -->
-                    <div id="recursos-container" class="u-ffbeea"></div>
+                    <div id="recursos-container" class="u-ffbeea" style="width: 100%;"></div>
 
-                    <button id="btn-logout" class="btn btn-outline u-e3e8d4" aria-label="Terminar sessão">Terminar Sessão</button>
-                    <button id="btn-delete-account" class="btn-danger-solid u-199b6f" aria-label="Encerrar conta definitivamente">
-                        <i data-lucide="trash-2" class="u-052ff0"></i> Encerrar Conta Definitivamente
-                    </button>
+                    <div class="actions-group" style="display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; margin: 20px auto 0;">
+                        <div style="border-top: 1px solid var(--border-color); margin-bottom: 15px; width: 100%;"></div>
+                        <button id="btn-logout" class="btn btn-outline u-e3e8d4" style="width: 100%;" aria-label="Terminar sessão">Terminar Sessão</button>
+                        <button id="btn-delete-account" class="btn-danger-solid u-199b6f" style="width: 100%;" aria-label="Encerrar conta definitivamente">
+                            <i data-lucide="trash-2" class="u-052ff0"></i> Encerrar Conta
+                        </button>
+                    </div>
                 </div>
 
                 <div id="footer-note" class="u-0751a0">
